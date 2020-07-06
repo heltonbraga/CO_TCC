@@ -18,14 +18,17 @@
     "react-social-icons": "^4.1.0",
     "reactstrap": "^8.5.1",
     "redux": "^4.0.5",
+    "serve": "^11.3.2",
     "typescript": "^3.9.6",
     "webfontloader": "^1.6.28"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "start": "serve -s build",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "heroku-postbuild": "npm run build"
   },
   "eslintConfig": {
     "extends": "react-app"
