@@ -1,0 +1,79 @@
+.App-header {
+  background-color: rgb(137, 210, 252);
+  height: 80px;
+  width: 100%;
+  text-align: left;
+}
+
+.App-logo {
+  margin-left: 20px;
+  float: left;
+}
+
+.App-name {
+  margin-left: 10px;
+  line-height: 80px;
+  font-family: "Courgette", cursive;
+  font-size: xx-large;
+}
+
+.App {
+  text-align: center;
+}
+
+.desk {
+  display: inline-block;
+}
+
+.cell {
+  display: none;
+}
+
+.right-align {
+  float: right;
+  text-align: right;
+  margin-right: 5px;
+}
+
+.texto-secundario {
+  font-size: small;
+  color: dimgray;
+}
+
+.Home {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.Foto-Home {
+  max-width: 90%;
+  max-height: 90%;
+}
+
+@media (max-width: 600px) {
+  .desk {
+    display: none;
+  }
+
+  .cell {
+    display: inline-block;
+  }
+
+  .App-header {
+    height: 40px;
+    width: 100%;
+  }
+
+  .App-logo {
+    margin-left: 0;
+    float: left;
+  }
+
+  .App-name {
+    margin-left: 5px;
+    line-height: 40px;
+    font-family: "Courgette", cursive;
+    font-size: large;
+  }
+}
