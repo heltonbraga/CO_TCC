@@ -29,15 +29,15 @@ ReactDOM.render(
   <Auth0Provider
     domain={process.env.REACT_APP_AUTH_DOMAIN}
     clientId={process.env.REACT_APP_AUTH_CLIENTID}
-    audience={process.env.REACT_APP_AUTH_AUDIENCE}
+    audience={"http://localhost:3001/"/*process.env.REACT_APP_AUTH_AUDIENCE*/}
     redirectUri={window.location.origin}
     onRedirectCallback={onRedirectCallback}
   >
-    <React.StrictMode>
+    <React.Fragment>
       <Provider store={createStore(reducers)}>
         <App />
       </Provider>
-    </React.StrictMode>
+    </React.Fragment>
   </Auth0Provider>,
   document.getElementById("root")
 );

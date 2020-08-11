@@ -1,19 +1,51 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
+import { reset } from "redux-form";
+import TabelaDentistas from "./admin-dentista/TabelaDentistas";
+import { setTela } from "../actions";
+import FormIncluirDentista from "./admin-dentista/FormIncluirDentista";
 
 class HomeAdmin extends React.Component {
+  showResults = (values, dispatch) => {
+    console.log(values);
+    dispatch(reset("wizard"));
+    this.props.setTela("");
+  };
+
+  cancelar = () => {
+    this.props.setTela("");
+  };
+
+  renderInterno = (opcao, tela) => {
+    if (opcao === "adminDent") {
+      if (tela === "CREATE_DENTISTA") {
+        return (
+          <div>
+            <FormIncluirDentista onSubmit={this.showResults} onCancel={this.cancelar} />
+          </div>
+        );
+      }
+      return <TabelaDentistas />;
+    }
+    return <div>Administrador</div>;
+  };
+
   render() {
     return this.props.perfil !== "administrador" ? (
       <Redirect to={"/" + this.props.perfil} />
     ) : (
-      <div>usuário logado como Admin - {this.props.opcaoSelecionadaMenu}</div>
+      <div>{this.renderInterno(this.props.opcaoSelecionadaMenu, this.props.tela)}</div>
     );
   }
 }
 
 const mapStateToProps = (state) => {
-  return { opcaoSelecionadaMenu: state.opcaoSelecionadaMenu };
+  return {
+    opcaoSelecionadaMenu: state.opcaoSelecionadaMenu,
+    setToken: state.setToken,
+    tela: state.tela,
+  };
 };
 
-export default connect(mapStateToProps)(HomeAdmin);
+export default connect(mapStateToProps, { setTela })(HomeAdmin);

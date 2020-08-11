@@ -1,4 +1,6 @@
 import React from "react";
+import { connect } from "react-redux";
+import { setToken, setMessage } from "./actions";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Container, Button, Nav } from "reactstrap";
@@ -7,6 +9,7 @@ import { getPerfil } from "./components/Api";
 
 import Header from "./components/Header";
 import Loading from "./components/Loading";
+import Message from "./components/Message";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Menu from "./components/Menu";
 import Home from "./components/Home";
@@ -17,11 +20,22 @@ import HomePaciente from "./components/HomePaciente";
 
 import "./App.css";
 
-function App() {
-  const { isLoading, isAuthenticated, user, loginWithRedirect, logout } = useAuth0();
+function App(props) {
+  const {
+    isLoading,
+    isAuthenticated,
+    user,
+    loginWithRedirect,
+    logout,
+    getAccessTokenSilently,
+  } = useAuth0();
 
   if (isLoading) {
     return <Loading />;
+  }
+
+  if (isAuthenticated) {
+    getAccessTokenSilently().then((token) => props.setToken(token));
   }
 
   const logoutWithRedirect = () =>
@@ -62,10 +76,15 @@ function App() {
               )}
             />
           </Switch>
+          {props.message ? <Message msg={props.message} /> : null}
         </Container>
       </div>
     </Router>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return { setToken: state.setToken, message: state.message };
+};
+
+export default connect(mapStateToProps, { setToken, setMessage })(App);

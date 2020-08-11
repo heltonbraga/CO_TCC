@@ -1,4 +1,5 @@
 import { combineReducers } from "redux";
+import { reducer as reduxFormReducer } from 'redux-form';
 
 export const opcoesMenuReducer = (perfil) => {
   return [
@@ -25,7 +26,32 @@ export const opcaoSelecionadaMenuReducer = (opcao = null, action) => {
   return opcao;
 };
 
+export const setTokenReducer = (token = null, action) => {
+  if (action.type === "SET_TOKEN") {
+    return action.payload;
+  }
+  return token;
+};
+
+export const messageReducer = (message = null, action) => {
+  if (action.type === "MESSAGE") {
+    return action.payload;
+  }
+  return message;
+};
+
+export const telaReducer = (tela = null, action) => {
+  if (action.type === "TELA") {
+    return action.payload;
+  }
+  return tela;
+};
+
 export default combineReducers({
+  form: reduxFormReducer,
   opcoesMenu: opcoesMenuReducer,
   opcaoSelecionadaMenu: opcaoSelecionadaMenuReducer,
+  setToken: setTokenReducer,
+  message: messageReducer,
+  tela: telaReducer,
 });
