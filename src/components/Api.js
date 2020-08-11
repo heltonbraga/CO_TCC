@@ -3,6 +3,15 @@ import axios from "axios";
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
+const digerirErro = (erro) => {
+  if (!erro || !erro.response || !erro.response.headers || !erro.response.headers["content-type"]) {
+    return "" + erro;
+  }
+  return erro.response.headers["content-type"].slice(0, 4) === "text"
+    ? erro.response.status
+    : erro.response.data.message;
+};
+
 export const getAllDentistas = (page, pageSize, order, token, onSuccess, onError) => {
   axios
     .get("dentistas", {
@@ -15,7 +24,7 @@ export const getAllDentistas = (page, pageSize, order, token, onSuccess, onError
     })
     .then(
       (res) => onSuccess(res),
-      (err) => onError(err)
+      (err) => onError(digerirErro(err))
     );
 };
 
@@ -29,7 +38,7 @@ export const getDentistasByNome = (nome, token, onSuccess, onError) => {
     })
     .then(
       (res) => onSuccess(res),
-      (err) => onError(err)
+      (err) => onError(digerirErro(err))
     );
 };
 
@@ -49,19 +58,26 @@ export const getPerfil = (user) => {
 };
 
 export const getBancos = (onSuccess, onError) => {
-  axios
-    .get("bancos")
-    .then(
-      (res) => onSuccess(res),
-      (err) => onError(err)
-    );
+  axios.get("bancos").then(
+    (res) => onSuccess(res),
+    (err) => onError(digerirErro(err))
+  );
 };
 
 export const getProcedimentos = (onSuccess, onError) => {
+  axios.get("procedimentos").then(
+    (res) => onSuccess(res),
+    (err) => onError(digerirErro(err))
+  );
+};
+
+export const createDentista = (data, token, onSuccess, onError, extra) => {
   axios
-    .get("procedimentos")
+    .post("dentistas", data, {
+      headers: { Authorization: "Bearer: " + token },
+    })
     .then(
-      (res) => onSuccess(res),
-      (err) => onError(err)
+      (res) => onSuccess(res, extra),
+      (err) => onError(digerirErro(err))
     );
 };

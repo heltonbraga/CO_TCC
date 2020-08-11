@@ -3,13 +3,12 @@ import { connect } from "react-redux";
 import { setToken, setMessage } from "./actions";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Container, Button, Nav } from "reactstrap";
+import { Container, Button, Nav, Alert } from "reactstrap";
 
 import { getPerfil } from "./components/Api";
 
 import Header from "./components/Header";
 import Loading from "./components/Loading";
-import Message from "./components/Message";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Menu from "./components/Menu";
 import Home from "./components/Home";
@@ -60,6 +59,13 @@ function App(props) {
           </Nav>
         </div>
         <Container className="flex-grow-1 mt-5">
+          <Alert
+            color={props.message ? props.message.color : "primary"}
+            isOpen={props.message !== null}
+            toggle={(e) => props.setMessage(null)}
+          >
+            {props.message ? props.message.text : " "}
+          </Alert>
           <Switch>
             <Route exact path="/" render={(props) => <Home perfil={perfil} />} />
             <ProtectedRoute path="/administrador" perfil={perfil} component={HomeAdmin} />
@@ -76,7 +82,6 @@ function App(props) {
               )}
             />
           </Switch>
-          {props.message ? <Message msg={props.message} /> : null}
         </Container>
       </div>
     </Router>

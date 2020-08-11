@@ -31,7 +31,7 @@ const Endereco = (props) => {
         label="CEP"
         onChange={(e) => buscarPeloCep(e, props)}
       />
-      <Field name="estado" type="text" component={renderField} label="Estado" />
+      <Field name="estado" type="text" component={renderField} label="Estado (sigla)" />
       <Field name="cidade" type="text" component={renderField} label="Cidade" />
       <Field name="endereco" type="text" component={renderField} label="Endereço" />
       <Field name="complemento" type="text" component={renderField} label="Complemento" />

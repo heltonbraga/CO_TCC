@@ -1,5 +1,5 @@
 import React from "react";
-import { change, reduxForm, Field } from "redux-form";
+import { reduxForm, Field } from "redux-form";
 import {
   MenuItem,
   Checkbox,
@@ -41,7 +41,12 @@ const ProcDispDentista = (props) => {
   const [erroHora, setErroHora] = React.useState();
 
   const handleChange = (event, props) => {
-    setHabilitados(event.target.value);
+    let val = event.target.value;
+    setHabilitados(val);
+    props.change(
+      "procedimentosHabilitados",
+      props.procedimentos.filter((p) => val.indexOf(p.nome) >= 0)
+    );
   };
 
   const handleMarcarTodos = (event, props) => {
@@ -50,6 +55,10 @@ const ProcDispDentista = (props) => {
       marcados = props.procedimentos.map((p) => p.nome);
     }
     setHabilitados(marcados);
+    props.change(
+      "procedimentosHabilitados",
+      props.procedimentos.filter((p) => marcados.indexOf(p.nome) >= 0)
+    );
   };
 
   const renderTelaProc = () => {
@@ -117,6 +126,7 @@ const ProcDispDentista = (props) => {
     novaDisp.push(disp);
     setHorarios(novaDisp);
     setDia(semana[(disp.dia_num + 1) % 7]);
+    props.change("horariosDisponiveis", novaDisp);
   };
 
   const delDisp = (event, disp) => {
@@ -130,6 +140,7 @@ const ProcDispDentista = (props) => {
     );
     setHorarios(novaDisp);
     setDia(semana[disp.dia_num % 7]);
+    props.change("horariosDisponiveis", novaDisp);
   };
 
   const renderTelaDisp = () => {
@@ -230,23 +241,8 @@ const ProcDispDentista = (props) => {
     );
   };
 
-  const preSubmit = (e) => {
-    e.preventDefault();
-    sethiddenProps();
-    handleSubmit(e);
-  };
-
-  const sethiddenProps = () => {
-    props.change(
-      "procedimentosHabilitados",
-      props.procedimentos.filter((p) => habilitados.indexOf(p.nome) >= 0)
-    );
-    props.change("horariosDisponiveis", horarios);
-    console.log(props);
-  };
-
   return (
-    <form onSubmit={preSubmit}>
+    <form onSubmit={handleSubmit}>
       {renderTelaProc()}
       {renderTelaDisp()}
       <Field

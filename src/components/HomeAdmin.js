@@ -1,28 +1,18 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
-import { reset } from "redux-form";
 import TabelaDentistas from "./admin-dentista/TabelaDentistas";
 import { setTela } from "../actions";
 import FormIncluirDentista from "./admin-dentista/FormIncluirDentista";
 
 class HomeAdmin extends React.Component {
-  showResults = (values, dispatch) => {
-    console.log(values);
-    dispatch(reset("wizard"));
-    this.props.setTela("");
-  };
-
-  cancelar = () => {
-    this.props.setTela("");
-  };
 
   renderInterno = (opcao, tela) => {
     if (opcao === "adminDent") {
       if (tela === "CREATE_DENTISTA") {
         return (
           <div>
-            <FormIncluirDentista onSubmit={this.showResults} onCancel={this.cancelar} />
+            <FormIncluirDentista />
           </div>
         );
       }

@@ -1,6 +1,8 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { getBancos, getProcedimentos } from "../Api";
+import { connect } from "react-redux";
+import { reset } from "redux-form";
+import { getBancos, getProcedimentos, createDentista } from "../Api";
+import { setMessage, setTela } from "../../actions";
 import Identificacao from "../form-pessoa/Identificacao";
 import Contato from "../form-pessoa/Contato";
 import Endereco from "../form-pessoa/Endereco";
@@ -27,7 +29,13 @@ class FormIncluirDentista extends React.Component {
   };
 
   showError = (err) => {
-    this.props.setMessage(err.response.data.message);
+    this.props.setMessage({ color: "warning", text: err });
+  };
+
+  showSuccess = (res, dispatch) => {
+    this.props.setMessage({ color: "primary", text: "Cadastro realizado!" });
+    dispatch(reset("wizard"));
+    this.props.setTela("");
   };
 
   nextPage = () => {
@@ -36,6 +44,61 @@ class FormIncluirDentista extends React.Component {
 
   previousPage = () => {
     this.setState({ page: this.state.page - 1 });
+  };
+
+  converterFormToRequest = (val) => {
+    let bank = { banco: val.banco, agencia: val.agencia, conta: val.conta };
+    let pess = {
+      nome: val.nome,
+      nr_cpf: val.cpf.replace(/(\D)/g, ""),
+      sexo: val.sexo,
+      dt_nascimento: val.nascimento,
+      //
+      email: val.email,
+      nr_tel: val.tel1,
+      nr_tel_2: val.tel2,
+      //
+      nr_cep: val.cep,
+      sg_uf: val.estado,
+      nm_cidade: val.cidade,
+      de_endereco: val.endereco,
+      de_endereco_comp: val.complemento,
+      //
+      dadosBancarios: bank,
+    };
+    let proc = val.procedimentosHabilitados
+      ? val.procedimentosHabilitados.map((p) => {
+          return { procedimento_id: p.id };
+        })
+      : [];
+    let disp = val.horariosDisponiveis
+      ? val.horariosDisponiveis.map((d) => {
+          return {
+            dm_dia_semana: d.dia_str.toLowerCase(),
+            hr_inicio: d.inicio_str,
+            hr_fim: d.fim_str,
+          };
+        })
+      : [];
+    let data = {
+      admin: 1,
+      nr_cro: val.cro,
+      dt_liberacao: val.liberacao,
+      dt_bloqueio: val.bloqueio,
+      pessoa: pess,
+      procedimentos: proc,
+      disponibilidades: disp,
+    };
+    return data;
+  };
+
+  onSubmit = (values, dispatch) => {
+    const data = this.converterFormToRequest(values);
+    createDentista(data, this.props.setToken, this.showSuccess, this.showError, dispatch);
+  };
+
+  onCancel = () => {
+    this.props.setTela("");
   };
 
   render() {
@@ -49,7 +112,7 @@ class FormIncluirDentista extends React.Component {
           <Identificacao
             previousPage={this.previousPage}
             handleSubmit={this.nextPage}
-            onCancel={this.props.onCancel}
+            onCancel={this.onCancel}
             stepNumber={1}
             stepCount={stepCount}
           />
@@ -58,7 +121,7 @@ class FormIncluirDentista extends React.Component {
           <Contato
             previousPage={this.previousPage}
             handleSubmit={this.nextPage}
-            onCancel={this.props.onCancel}
+            onCancel={this.onCancel}
             stepNumber={2}
             stepCount={stepCount}
           />
@@ -67,7 +130,7 @@ class FormIncluirDentista extends React.Component {
           <Endereco
             previousPage={this.previousPage}
             onSubmit={this.nextPage}
-            onCancel={this.props.onCancel}
+            onCancel={this.onCancel}
             stepNumber={3}
             stepCount={stepCount}
           />
@@ -76,7 +139,7 @@ class FormIncluirDentista extends React.Component {
           <DadosBancarios
             previousPage={this.previousPage}
             onSubmit={this.nextPage}
-            onCancel={this.props.onCancel}
+            onCancel={this.onCancel}
             stepNumber={4}
             stepCount={stepCount}
             bancos={this.state.bancos}
@@ -86,7 +149,7 @@ class FormIncluirDentista extends React.Component {
           <DadosDentista
             previousPage={this.previousPage}
             onSubmit={this.nextPage}
-            onCancel={this.props.onCancel}
+            onCancel={this.onCancel}
             stepNumber={5}
             stepCount={stepCount}
           />
@@ -94,8 +157,8 @@ class FormIncluirDentista extends React.Component {
         {page === 6 && (
           <ProcDispDentista
             previousPage={this.previousPage}
-            onSubmit={this.props.onSubmit}
-            onCancel={this.props.onCancel}
+            onSubmit={this.onSubmit}
+            onCancel={this.onCancel}
             stepNumber={6}
             stepCount={stepCount}
             procedimentos={this.state.procedimentos}
@@ -106,8 +169,8 @@ class FormIncluirDentista extends React.Component {
   }
 }
 
-FormIncluirDentista.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
+const mapStateToProps = (state) => {
+  return { setToken: state.setToken, message: state.message, tela: state.tela };
 };
 
-export default FormIncluirDentista;
+export default connect(mapStateToProps, { setMessage, setTela })(FormIncluirDentista);

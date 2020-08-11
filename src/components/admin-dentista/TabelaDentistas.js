@@ -40,7 +40,7 @@ class TabelaDentistas extends React.Component {
   };
 
   showError = (err) => {
-    this.props.setMessage(err.response.data.message);
+    this.props.setMessage({ color: "warning", text: err });
   };
 
   getDentistaHeader = () => {
@@ -147,11 +147,13 @@ class TabelaDentistas extends React.Component {
 
   table_onEditRegister = (event, key) => {
     //TODO
+    this.props.setMessage({ color: "primary", text: "AHOY!" });
     console.log("EDIT" + key);
   };
 
   table_onDeleteRegister = (event, key) => {
     //TODO
+    this.props.setMessage({ color: "warning", text: "ERROU" });
     console.log("DELETE" + key);
   };
 

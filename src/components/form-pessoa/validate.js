@@ -28,9 +28,18 @@ const validarCPF = (strCPF) => {
 
 const validate = (values) => {
   const errors = {};
-  /*
+
   const MSG_REQUIRED = "Obrigatório";
   const MSG_INVALID = " inválido";
+  const MSG_ATLEAST = "Informe um ou mais";
+
+  if (!values.procedimentosHabilitados || values.procedimentosHabilitados.length === 0) {
+    errors.procedimentosHabilitados = MSG_ATLEAST;
+  }
+
+  if (!values.horariosDisponiveis || values.horariosDisponiveis.length === 0) {
+    errors.horariosDisponiveis = MSG_ATLEAST;
+  }
 
   if (!values.nome) {
     errors.nome = MSG_REQUIRED;
@@ -61,7 +70,20 @@ const validate = (values) => {
     errors.cep = MSG_REQUIRED;
   } else if (!/^(\d{2})\.(\d{3})-(\d{3})$/i.test(values.cep)) {
     errors.cep = "cep" + MSG_INVALID;
-  }*/
+  }
+
+  if (
+    (values.banco || values.agencia || values.conta) &&
+    (!values.banco || !values.agencia || !values.conta)
+  ) {
+    errors.banco = MSG_REQUIRED;
+    errors.agencia = MSG_REQUIRED;
+    errors.conta = MSG_REQUIRED;
+  }
+
+  if (!values.cro) {
+    errors.cro = MSG_REQUIRED;
+  }
 
   return errors;
 };
