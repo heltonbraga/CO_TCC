@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { reset } from "redux-form";
 import { getBancos, getProcedimentos, createDentista, getDentista, updateDentista } from "../Api";
 import { setMessage, setTela } from "../../actions";
-import { Backdrop, CircularProgress, Dialog } from "@material-ui/core";
+import { CircularProgress, Dialog } from "@material-ui/core";
 import Identificacao from "../form-pessoa/Identificacao";
 import Contato from "../form-pessoa/Contato";
 import Endereco from "../form-pessoa/Endereco";

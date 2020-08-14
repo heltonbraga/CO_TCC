@@ -2,7 +2,7 @@ export const formatar = (value, format) => {
   if (!value) return undefined;
   let val = value;
   if (format.slice(0, 1) === ":") {
-    val = val.slice(-1 * parseInt(format.slice(1)));
+    val = val.slice(parseInt(format.slice(1)));
   }
   if (format === "num") {
     val = val.replace(/(\D)/g, "");

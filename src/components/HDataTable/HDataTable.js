@@ -24,6 +24,8 @@ export default class HDataTable extends React.Component {
           <HTableToolbar
             title={this.props.title}
             onSearch={this.props.onSearch}
+            onExport={this.props.onExport}
+            dataExport={this.props.dataExport}
             onSearchCancel={this.props.onSearchCancel}
             onCreateRegister={this.props.onCreateRegister}
             searchPlaceHolder={this.props.searchPlaceHolder}

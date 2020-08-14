@@ -5,8 +5,10 @@ import { Form } from "reactstrap";
 import SearchIcon from "@material-ui/icons/Search";
 import ClearIcon from "@material-ui/icons/Clear";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import InputBase from "@material-ui/core/InputBase";
 import { fade, makeStyles } from "@material-ui/core/styles";
+import { Tooltip } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: fade(theme.palette.common.white, 0.25),
     },
     marginLeft: 0,
-    width: "100%",
+    width: "90%",
     [theme.breakpoints.up("sm")]: {
       marginLeft: theme.spacing(1),
       width: "auto",
@@ -52,10 +54,10 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-    transition: theme.transitions.create("width"),
+    //transition: theme.transitions.create("width"),
     width: "100%",
     [theme.breakpoints.up("sm")]: {
-      width: "12ch",
+      width: "20ch",
       "&:focus": {
         width: "20ch",
       },
@@ -73,7 +75,6 @@ export default function HTableToolbar(props) {
   const classes = useStyles();
   return (
     <Toolbar>
-      <AddCircleOutlineIcon color="primary" onClick={props.onCreateRegister} />
       <Typography className="" variant="h6" id="tableTitle" component="div">
         {props.title}
       </Typography>
@@ -102,6 +103,14 @@ export default function HTableToolbar(props) {
             <SearchIcon color="primary" onClick={(e) => onSubmit(e, props, searchKey)} />
           )}
         </Form>
+      </div>
+      <div style={{ marginLeft: "auto" }}>
+        <Tooltip title="novo">
+          <AddCircleOutlineIcon color="primary" onClick={props.onCreateRegister} />
+        </Tooltip>{" "}
+        <Tooltip title="exportar">
+          <SaveAltIcon onClick={props.onExport} />
+        </Tooltip>
       </div>
     </Toolbar>
   );

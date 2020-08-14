@@ -1,9 +1,14 @@
 import React from "react";
 import { connect } from "react-redux";
+import { CircularProgress, Dialog } from "@material-ui/core";
 import { getAllDentistas, getDentistasByNome, deleteDentista, getDentista } from "../Api";
 import HDataTable from "../HDataTable/HDataTable";
 import { setMessage, setTela } from "../../actions";
+import { formatar } from "../form-pessoa/dataFormat";
 import HDialog from "./HDialog";
+import * as FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import PdfDentista from "./PdfDentista";
 
 class TabelaDentistas extends React.Component {
   state = {
@@ -13,7 +18,9 @@ class TabelaDentistas extends React.Component {
     table_orderBy: "nome",
     table_ascOrder: "asc",
     delDialogOpen: false,
-    dialogKey: null,
+    delDialogKey: null,
+    pdfDialogKey: null,
+    wait: false,
   };
 
   componentDidMount() {
@@ -28,6 +35,10 @@ class TabelaDentistas extends React.Component {
   }
 
   showDentistas = (res) => {
+    if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
+      this.props.setMessage({ color: "warning", text: "Nenhum dentista encontrado" });
+      return;
+    }
     let ord = res.data.parametros.order ? res.data.parametros.order : "nome-asc";
     if (ord.slice(0, 3) === "cro") {
       ord = "nr_" + ord;
@@ -64,7 +75,12 @@ class TabelaDentistas extends React.Component {
       call: this.table_onDeleteRegister,
       icon: "DELETAR",
     };
-    return [editar, excluir];
+    let exportar = {
+      tooltip: "PDF",
+      call: this.table_onPDF,
+      icon: "EXPORTAR",
+    };
+    return [editar, excluir, exportar];
   };
 
   formatarDadosTabela = () => {
@@ -153,16 +169,91 @@ class TabelaDentistas extends React.Component {
   };
 
   table_onDeleteRegister = (event, key) => {
-    this.setState({ delDialogOpen: true, dialogKey: key });
+    this.setState({ delDialogOpen: true, delDialogKey: key });
   };
 
   table_onSelect = (event, key) => {
     this.props.setTela("VIEW_DENTISTA:" + key);
   };
 
+  table_export = (event) => {
+    getAllDentistas(
+      1,
+      10000,
+      "nome-asc",
+      this.props.setToken,
+      this.table_exportCallback,
+      this.table_exportError,
+      1
+    );
+    this.setState({ wait: true });
+  };
+
+  table_exportCallback = (res) => {
+    if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
+      this.props.setMessage({ color: "warning", text: "Nenhum registro gerado!" });
+      this.setState({ dataExport: [] });
+    }
+    let data = res.data.registros.map((d) => {
+      return {
+        nome: d.Pessoa.nome,
+        cro: d.nr_cro,
+        bloqueio: formatar(d.dt_bloqueio, "dt"),
+        liberacao: formatar(d.dt_liberacao, "dt"),
+        cpf: formatar("0000000000" + d.Pessoa.nr_cpf, "cpf"),
+        nascimento: formatar(d.Pessoa.dt_nascimento, "dt"),
+        sexo: d.Pessoa.sexo,
+        //
+        cep: formatar("000000" + d.Pessoa.nr_cep, "cep"),
+        estado: d.Pessoa.sg_uf,
+        cidade: d.Pessoa.nm_cidade,
+        endereco: d.Pessoa.de_endereco,
+        complemento: d.Pessoa.de_endereco_comp,
+        //
+        email: d.Pessoa.email,
+        celular: formatar(d.Pessoa.nr_tel, "cell"),
+        fixo: formatar(d.Pessoa.nr_tel_2, "fixo"),
+        //
+        dados_bancarios:
+          d.Pessoa.DadosBancarios && d.Pessoa.DadosBancarios.length > 0
+            ? d.Pessoa.DadosBancarios[0].banco_codigo +
+              "/" +
+              d.Pessoa.DadosBancarios[0].agencia +
+              "/" +
+              d.Pessoa.DadosBancarios[0].conta
+            : null,
+        //
+        procedimentos: d.Procedimentos ? d.Procedimentos.map((p) => p.nome).join(", ") : null,
+        horarios: d.Disponibilidades
+          ? d.Disponibilidades.map(
+              (p) => p.dm_dia_semana + " de " + p.hr_inicio + " às " + p.hr_fim
+            ).join(", ")
+          : null,
+      };
+    });
+    console.log(data);
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const arquivo = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+    FileSaver.saveAs(arquivo, "planilha.xlsx");
+    this.setState({ wait: false });
+  };
+
+  table_exportError = (err) => {
+    this.props.setMessage({ color: "warning", text: err });
+    this.setState({ wait: false });
+  };
+
+  table_onPDF = (event, key) => {
+    this.setState({ pdfDialogOpen: true, pdfDialogKey: key });
+  };
+
   dialog_onConfirm = (event) => {
     deleteDentista(
-      { id: this.state.dialogKey, admin: 1 },
+      { id: this.state.delDialogKey, admin: 1 },
       this.props.setToken,
       this.onDeleteSuccess,
       this.showError
@@ -178,20 +269,31 @@ class TabelaDentistas extends React.Component {
       this.showDentistas,
       this.showError
     );
-    this.setState({ delDialogOpen: false, dialogKey: null });
+    this.setState({ delDialogOpen: false, delDialogKey: null });
     this.props.setMessage({ color: "primary", text: "Cadastro deletado!" });
   };
 
   getDentistaSelecionado = () => {
-    return this.state.dentistas && this.state.dialogKey
-      ? this.state.dentistas.registros.filter((d) => d.id === this.state.dialogKey)[0]
+    return this.state.dentistas && this.state.delDialogKey
+      ? this.state.dentistas.registros.filter((d) => d.id === this.state.delDialogKey)[0]
       : {};
   };
 
   render() {
     return (
       <div>
-        {this.state.dialogKey && (
+        <Dialog
+          fullScreen
+          open={this.state.wait}
+          PaperProps={{
+            style: {
+              backgroundColor: "transparent",
+              boxShadow: "none",
+            },
+          }}
+        />
+        {this.state.wait && <CircularProgress />}
+        {this.state.delDialogKey && (
           <HDialog
             data={this.getDentistaSelecionado()}
             open={this.state.delDialogOpen}
@@ -200,10 +302,20 @@ class TabelaDentistas extends React.Component {
             onConfirm={this.dialog_onConfirm}
           />
         )}
+        {this.state.pdfDialogKey && (
+          <PdfDentista
+            idDentista={this.state.pdfDialogKey}
+            idUser={1}
+            setToken={this.props.setToken}
+            onClose={(e) => this.setState({ pdfDialogKey: null })}
+          />
+        )}
         <HDataTable
           title="Dentistas"
-          searchPlaceHolder="nome..."
+          searchPlaceHolder="filtrar por nome..."
           onSearch={this.table_onSearch}
+          onExport={this.table_export}
+          dataExport={this.state.dataExport}
           onSearchCancel={this.table_onSearchCancel}
           data={this.formatarDadosTabela()}
           onSelect={this.table_onSelect}

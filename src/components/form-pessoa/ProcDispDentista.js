@@ -15,6 +15,7 @@ import {
   IconButton,
   List,
   Grid,
+  Tooltip,
 } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -183,13 +184,15 @@ const ProcDispDentista = (props) => {
                     className="ListaDispItemText"
                     primary={d.dia_str + " de " + d.inicio_str + " às " + d.fim_str + " "}
                   />
-                  <IconButton
-                    tooltip="remover"
-                    onClick={(e) => delDisp(e, d)}
-                    disabled={props.readOnly}
-                  >
-                    <DeleteIcon color={props.readOnly ? "disabled" : "secondary"} />
-                  </IconButton>
+                  <Tooltip title="excluir">
+                    <IconButton
+                      tooltip="excluir"
+                      onClick={(e) => delDisp(e, d)}
+                      disabled={props.readOnly}
+                    >
+                      <DeleteIcon color={props.readOnly ? "disabled" : "secondary"} />
+                    </IconButton>
+                  </Tooltip>
                 </ListItem>
               ))}
             </List>
@@ -252,15 +255,17 @@ const ProcDispDentista = (props) => {
                   </MenuItem>
                 ))}
               </Select>
-              <IconButton
-                color="primary"
-                aria-label="add disponibilidade"
-                component="span"
-                onClick={addDisp}
-                disabled={props.readOnly}
-              >
-                <AddCircleIcon />
-              </IconButton>
+              <Tooltip title="adicionar">
+                <IconButton
+                  color="primary"
+                  aria-label="add disponibilidade"
+                  component="span"
+                  onClick={addDisp}
+                  disabled={props.readOnly}
+                >
+                  <AddCircleIcon />
+                </IconButton>
+              </Tooltip>
             </Grid>
           </Grid>
         )}

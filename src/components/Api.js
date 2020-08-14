@@ -12,13 +12,14 @@ const digerirErro = (erro) => {
     : erro.response.data.message;
 };
 
-export const getAllDentistas = (page, pageSize, order, token, onSuccess, onError) => {
+export const getAllDentistas = (page, pageSize, order, token, onSuccess, onError, admin) => {
   axios
     .get("dentistas", {
       params: {
         page: page,
         pagesize: pageSize,
         order: order,
+        admin: admin,
       },
       headers: { Authorization: "Bearer: " + token },
     })

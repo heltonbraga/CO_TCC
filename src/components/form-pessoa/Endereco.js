@@ -1,5 +1,6 @@
 import React from "react";
 import { Field, reduxForm } from "redux-form";
+import { MenuItem, ListItemText } from "@material-ui/core";
 import validate from "./validate";
 import WizButtons from "./WizButtons";
 import renderField from "./renderField";
@@ -19,6 +20,34 @@ const preencherPeloCep = ({ street, neighborhood, city, state }, props) => {
   props.change("cidade", city);
   props.change("endereco", street + ", " + neighborhood);
 };
+
+const estados = [
+  "AC",
+  "AL",
+  "AM",
+  "AP",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
+];
 
 const Endereco = (props) => {
   const { onCancel, reset, handleSubmit } = props;
@@ -45,7 +74,13 @@ const Endereco = (props) => {
         label="CEP"
         onChange={(e) => buscarPeloCep(e, props)}
       />
-      <Field name="estado" type={"text-:2" + off} component={renderField} label="Estado (sigla)" />
+      <Field name="estado" type={"combo-" + off} component={renderField} label="Estado (sigla)">
+        {estados.map((p) => (
+          <MenuItem key={p} value={p}>
+            <ListItemText primary={p} />
+          </MenuItem>
+        ))}
+      </Field>
       <Field name="cidade" type={"text-" + off} component={renderField} label="Cidade" />
       <Field name="endereco" type={"text-" + off} component={renderField} label="Endereço" />
       <Field name="complemento" type={"text-" + off} component={renderField} label="Complemento" />

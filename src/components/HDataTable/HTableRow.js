@@ -1,9 +1,8 @@
 import React from "react";
-import TableCell from "@material-ui/core/TableCell";
-import TableRow from "@material-ui/core/TableRow";
-import IconButton from "@material-ui/core/IconButton";
+import { Tooltip, IconButton, TableCell, TableRow } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import CheckIcon from "@material-ui/icons/Check";
 
 export default class HTableRow extends React.Component {
@@ -12,6 +11,8 @@ export default class HTableRow extends React.Component {
       return <EditIcon color="primary" />;
     } else if (acao === "DELETAR") {
       return <DeleteIcon color="secondary" />;
+    } else if (acao === "EXPORTAR") {
+      return <SaveAltIcon />;
     }
     return <CheckIcon color="#6A6" />;
   };
@@ -33,14 +34,16 @@ export default class HTableRow extends React.Component {
           <TableCell align="center">
             {this.props.actions.map((action) => {
               return (
-                <IconButton
-                  key={action.tooltip + row.key}
-                  aria-label={action.tooltip}
-                  tooltip={action.tooltip}
-                  onClick={(e) => action.call(e, row.key)}
-                >
-                  {this.renderIcon(action.icon)}
-                </IconButton>
+                <Tooltip title={action.tooltip} key={action.tooltip + row.key}>
+                  <IconButton
+                    key={action.tooltip + row.key}
+                    aria-label={action.tooltip}
+                    tooltip={action.tooltip}
+                    onClick={(e) => action.call(e, row.key)}
+                  >
+                    {this.renderIcon(action.icon)}
+                  </IconButton>
+                </Tooltip>
               );
             })}
           </TableCell>
