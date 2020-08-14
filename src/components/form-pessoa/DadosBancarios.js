@@ -7,15 +7,29 @@ import WizButtons from "./WizButtons";
 
 const DadosBancarios = (props) => {
   const { onCancel, reset, handleSubmit } = props;
+
+  React.useEffect(() => {
+    if (!props.pessoa) {
+      return;
+    }
+    props.change("banco", props.pessoa.banco);
+    props.change("agencia", props.pessoa.agencia);
+    props.change("conta", props.pessoa.conta);
+  }, [props.pessoa]);
+
+  const off = props.readOnly ? "-" : "";
+
   return (
     <form onSubmit={handleSubmit}>
-      <Field name="banco" type="combo" component={renderField} label="Banco">
+      <Field name="banco" type={"combo-" + off} component={renderField} label="Banco">
         {props.bancos.map((bank) => (
-          <MenuItem key={bank.codigo} value={bank.codigo}>{bank.nome}</MenuItem>
+          <MenuItem key={bank.codigo} value={bank.codigo}>
+            {bank.nome}
+          </MenuItem>
         ))}
       </Field>
-      <Field name="agencia" type="text-agencia" component={renderField} label="Agência" />
-      <Field name="conta" type="text-agencia" component={renderField} label="Conta" />
+      <Field name="agencia" type={"text-agencia" + off} component={renderField} label="Agência" />
+      <Field name="conta" type={"text-agencia" + off} component={renderField} label="Conta" />
       <WizButtons
         onCancel={(e) => {
           reset();
@@ -32,4 +46,5 @@ export default reduxForm({
   destroyOnUnmount: false, //        <------ preserve form data
   forceUnregisterOnUnmount: true, // <------ unregister fields on unmount
   validate,
+  enableReinitialize: true,
 })(DadosBancarios);

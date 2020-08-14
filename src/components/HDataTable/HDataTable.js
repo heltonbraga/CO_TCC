@@ -1,19 +1,21 @@
 import React from "react";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableContainer from "@material-ui/core/TableContainer";
-import TablePagination from "@material-ui/core/TablePagination";
-import Paper from "@material-ui/core/Paper";
+import {
+  Table,
+  TableBody,
+  TableContainer,
+  TablePagination,
+  Paper,
+  CircularProgress,
+} from "@material-ui/core";
 import HTableToolbar from "./HTableToolbar";
 import HTableRow from "./HTableRow";
 import HTableHead from "./HTableHead";
 
 export default class HDataTable extends React.Component {
-
   render() {
     const data = this.props.data;
     if (!data || !data.rows || data.rows.length === 0) {
-      return <div>Carregando...</div>;
+      return <CircularProgress />;
     }
     const { rows, headCells, total, page, pageSize } = this.props.data;
     return (

@@ -24,13 +24,31 @@ import WizButtons from "./WizButtons";
 
 const ProcDispDentista = (props) => {
   const { onCancel, reset, handleSubmit } = props;
-  const semana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+  const semana = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
   let horas = [];
   for (let i = 6; i <= 22; i++) {
     let str = ("0" + i).slice(-2);
     horas.push(str + ":00");
     horas.push(str + ":30");
   }
+
+  React.useEffect(() => {
+    if (!props.dentista) return;
+    props.change("procedimentosHabilitados", props.dentista.procedimentosHabilitados);
+    setHabilitados(props.dentista.procedimentosHabilitados.map((p) => p.nome));
+    const paramDisp = props.dentista.horariosDisponiveis.map((d) => {
+      return {
+        dia_str: d.dm_dia_semana,
+        dia_num: semana.indexOf(d.dm_dia_semana),
+        inicio_str: d.hr_inicio.slice(0, 5),
+        inicio_num: parseInt(d.hr_inicio.slice(0, 5).split(":").join()),
+        fim_str: d.hr_fim.slice(0, 5),
+        fim_num: parseInt(d.hr_fim.slice(0, 5).split(":").join()),
+      };
+    });
+    props.change("horariosDisponiveis", paramDisp);
+    setHorarios(paramDisp);
+  }, [props.dentista]);
 
   const [habilitados, setHabilitados] = React.useState([]);
   const [horarios, setHorarios] = React.useState([]);
@@ -73,6 +91,7 @@ const ProcDispDentista = (props) => {
           input={<Input />}
           renderValue={(selected) => selected.join(", ")}
           className="MultSelect"
+          disabled={props.readOnly}
           MenuProps={{
             getContentAnchorEl: () => null,
           }}
@@ -89,6 +108,7 @@ const ProcDispDentista = (props) => {
             <Checkbox
               checked={habilitados.length === props.procedimentos.length}
               onChange={(e) => handleMarcarTodos(e, props)}
+              disabled={props.readOnly}
               id="ckMarcarTodos"
               name="marcarTodos"
             />
@@ -163,80 +183,87 @@ const ProcDispDentista = (props) => {
                     className="ListaDispItemText"
                     primary={d.dia_str + " de " + d.inicio_str + " às " + d.fim_str + " "}
                   />
-                  <IconButton tooltip="remover" onClick={(e) => delDisp(e, d)}>
-                    <DeleteIcon color="secondary" />
+                  <IconButton
+                    tooltip="remover"
+                    onClick={(e) => delDisp(e, d)}
+                    disabled={props.readOnly}
+                  >
+                    <DeleteIcon color={props.readOnly ? "disabled" : "secondary"} />
                   </IconButton>
                 </ListItem>
               ))}
             </List>
           </Grid>
         </Grid>
-        <Grid container justify="center">
-          <Grid item>
-            <Select
-              className="dispSelect"
-              error={erroDia && erroDia.length > 0}
-              value={dia}
-              onChange={(e) => {
-                setDia(e.target.value);
-                setErroHora();
-                setErroDia();
-              }}
-            >
-              {semana.map((d) => (
-                <MenuItem key={d} value={d}>
-                  {d}
-                </MenuItem>
-              ))}
-            </Select>
+        {!props.readOnly && (
+          <Grid container justify="center">
+            <Grid item>
+              <Select
+                className="dispSelect"
+                error={erroDia && erroDia.length > 0}
+                value={dia}
+                onChange={(e) => {
+                  setDia(e.target.value);
+                  setErroHora();
+                  setErroDia();
+                }}
+              >
+                {semana.map((d) => (
+                  <MenuItem key={d} value={d}>
+                    {d}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid item>
+              <Select
+                className="dispSelect"
+                error={erroHora && erroHora.length > 0}
+                value={inicio}
+                onChange={(e) => {
+                  setInicio(e.target.value);
+                  setErroHora();
+                  setErroDia();
+                }}
+              >
+                {horas.map((h) => (
+                  <MenuItem key={h} value={h}>
+                    {h}
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText error>{erroHora}</FormHelperText>
+              <FormHelperText error>{erroDia}</FormHelperText>
+            </Grid>
+            <Grid item>
+              <Select
+                className="dispSelect"
+                error={erroHora && erroHora.length > 0}
+                value={fim}
+                onChange={(e) => {
+                  setFim(e.target.value);
+                  setErroHora();
+                  setErroDia();
+                }}
+              >
+                {horas.map((h) => (
+                  <MenuItem key={h} value={h}>
+                    {h}
+                  </MenuItem>
+                ))}
+              </Select>
+              <IconButton
+                color="primary"
+                aria-label="add disponibilidade"
+                component="span"
+                onClick={addDisp}
+                disabled={props.readOnly}
+              >
+                <AddCircleIcon />
+              </IconButton>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Select
-              className="dispSelect"
-              error={erroHora && erroHora.length > 0}
-              value={inicio}
-              onChange={(e) => {
-                setInicio(e.target.value);
-                setErroHora();
-                setErroDia();
-              }}
-            >
-              {horas.map((h) => (
-                <MenuItem key={h} value={h}>
-                  {h}
-                </MenuItem>
-              ))}
-            </Select>
-            <FormHelperText error>{erroHora}</FormHelperText>
-            <FormHelperText error>{erroDia}</FormHelperText>
-          </Grid>
-          <Grid item>
-            <Select
-              className="dispSelect"
-              error={erroHora && erroHora.length > 0}
-              value={fim}
-              onChange={(e) => {
-                setFim(e.target.value);
-                setErroHora();
-                setErroDia();
-              }}
-            >
-              {horas.map((h) => (
-                <MenuItem key={h} value={h}>
-                  {h}
-                </MenuItem>
-              ))}
-            </Select>
-            <IconButton
-              color="primary"
-              aria-label="add disponibilidade"
-              component="span"
-              onClick={addDisp}
-            >
-              <AddCircleIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
+        )}
       </Grid>
     );
   };
@@ -275,4 +302,5 @@ export default reduxForm({
   destroyOnUnmount: false, //        <------ preserve form data
   forceUnregisterOnUnmount: true, // <------ unregister fields on unmount
   validate,
+  enableReinitialize: true,
 })(ProcDispDentista);

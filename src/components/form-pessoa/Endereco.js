@@ -22,19 +22,33 @@ const preencherPeloCep = ({ street, neighborhood, city, state }, props) => {
 
 const Endereco = (props) => {
   const { onCancel, reset, handleSubmit } = props;
+
+  React.useEffect(() => {
+    if (!props.pessoa) {
+      return;
+    }
+    props.change("cep", props.pessoa.cep);
+    props.change("estado", props.pessoa.estado);
+    props.change("cidade", props.pessoa.cidade);
+    props.change("endereco", props.pessoa.endereco);
+    props.change("complemento", props.pessoa.complemento);
+  }, [props.pessoa]);
+
+  const off = props.readOnly ? "-" : "";
+
   return (
     <form onSubmit={handleSubmit}>
       <Field
         name="cep"
-        type="text-cep"
+        type={"text-cep" + off}
         component={renderField}
         label="CEP"
         onChange={(e) => buscarPeloCep(e, props)}
       />
-      <Field name="estado" type="text" component={renderField} label="Estado (sigla)" />
-      <Field name="cidade" type="text" component={renderField} label="Cidade" />
-      <Field name="endereco" type="text" component={renderField} label="Endereço" />
-      <Field name="complemento" type="text" component={renderField} label="Complemento" />
+      <Field name="estado" type={"text-:2" + off} component={renderField} label="Estado (sigla)" />
+      <Field name="cidade" type={"text-" + off} component={renderField} label="Cidade" />
+      <Field name="endereco" type={"text-" + off} component={renderField} label="Endereço" />
+      <Field name="complemento" type={"text-" + off} component={renderField} label="Complemento" />
       <WizButtons
         onCancel={(e) => {
           reset();
@@ -50,4 +64,5 @@ export default reduxForm({
   destroyOnUnmount: false, //        <------ preserve form data
   forceUnregisterOnUnmount: true, // <------ unregister fields on unmount
   validate,
+  enableReinitialize: true,
 })(Endereco);

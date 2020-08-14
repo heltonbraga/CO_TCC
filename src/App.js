@@ -4,11 +4,11 @@ import { setToken, setMessage } from "./actions";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Container, Button, Nav, Alert } from "reactstrap";
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import { getPerfil } from "./components/Api";
 
 import Header from "./components/Header";
-import Loading from "./components/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Menu from "./components/Menu";
 import Home from "./components/Home";
@@ -30,10 +30,12 @@ function App(props) {
   } = useAuth0();
 
   if (isLoading) {
-    return <Loading />;
+    return <CircularProgress />;
   }
 
+  let appUser = { perfil: "", id: 0 };
   if (isAuthenticated) {
+    appUser = getPerfil(user);
     getAccessTokenSilently().then((token) => props.setToken(token));
   }
 
@@ -42,7 +44,15 @@ function App(props) {
       returnTo: window.location.origin,
     });
 
-  const perfil = isAuthenticated ? getPerfil(user) : "";
+  const perfil = appUser.perfil;
+
+  const messageAlert = () => {
+    if (props.message) {
+      setTimeout(() => props.setMessage(null), 10000);
+      return props.message.text;
+    }
+    return "";
+  };
 
   return (
     <Router>
@@ -64,7 +74,7 @@ function App(props) {
             isOpen={props.message !== null}
             toggle={(e) => props.setMessage(null)}
           >
-            {props.message ? props.message.text : " "}
+            {messageAlert()}
           </Alert>
           <Switch>
             <Route exact path="/" render={(props) => <Home perfil={perfil} />} />

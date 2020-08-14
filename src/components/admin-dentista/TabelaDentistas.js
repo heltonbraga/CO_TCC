@@ -1,8 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
-import { getAllDentistas, getDentistasByNome } from "../Api";
+import { getAllDentistas, getDentistasByNome, deleteDentista, getDentista } from "../Api";
 import HDataTable from "../HDataTable/HDataTable";
 import { setMessage, setTela } from "../../actions";
+import HDialog from "./HDialog";
 
 class TabelaDentistas extends React.Component {
   state = {
@@ -11,6 +12,8 @@ class TabelaDentistas extends React.Component {
     table_page: 1,
     table_orderBy: "nome",
     table_ascOrder: "asc",
+    delDialogOpen: false,
+    dialogKey: null,
   };
 
   componentDidMount() {
@@ -146,39 +149,73 @@ class TabelaDentistas extends React.Component {
   };
 
   table_onEditRegister = (event, key) => {
-    //TODO
-    this.props.setMessage({ color: "primary", text: "AHOY!" });
-    console.log("EDIT" + key);
+    this.props.setTela("EDIT_DENTISTA:" + key);
   };
 
   table_onDeleteRegister = (event, key) => {
-    //TODO
-    this.props.setMessage({ color: "warning", text: "ERROU" });
-    console.log("DELETE" + key);
+    this.setState({ delDialogOpen: true, dialogKey: key });
   };
 
   table_onSelect = (event, key) => {
-    //TODO
-    console.log("SELECTED: " + key);
+    this.props.setTela("VIEW_DENTISTA:" + key);
+  };
+
+  dialog_onConfirm = (event) => {
+    deleteDentista(
+      { id: this.state.dialogKey, admin: 1 },
+      this.props.setToken,
+      this.onDeleteSuccess,
+      this.showError
+    );
+  };
+
+  onDeleteSuccess = () => {
+    getAllDentistas(
+      this.state.table_page,
+      this.state.table_pageSize,
+      this.state.table_orderBy + "-" + this.state.table_ascOrder,
+      this.props.setToken,
+      this.showDentistas,
+      this.showError
+    );
+    this.setState({ delDialogOpen: false, dialogKey: null });
+    this.props.setMessage({ color: "primary", text: "Cadastro deletado!" });
+  };
+
+  getDentistaSelecionado = () => {
+    return this.state.dentistas && this.state.dialogKey
+      ? this.state.dentistas.registros.filter((d) => d.id === this.state.dialogKey)[0]
+      : {};
   };
 
   render() {
     return (
-      <HDataTable
-        title="Dentistas"
-        searchPlaceHolder="nome..."
-        onSearch={this.table_onSearch}
-        onSearchCancel={this.table_onSearchCancel}
-        data={this.formatarDadosTabela()}
-        onSelect={this.table_onSelect}
-        onChangePage={this.table_onChangePage}
-        onChangePageSize={this.table_onChangePageSize}
-        onSort={this.table_onSort}
-        onCreateRegister={this.table_onCreateRegister}
-        orderBy={this.state.table_orderBy}
-        ascOrder={this.state.table_ascOrder}
-        actions={this.getTableActions("dentista")}
-      />
+      <div>
+        {this.state.dialogKey && (
+          <HDialog
+            data={this.getDentistaSelecionado()}
+            open={this.state.delDialogOpen}
+            onClose={(e) => this.setState({ delDialogOpen: false })}
+            onCancel={(e) => this.setState({ delDialogOpen: false })}
+            onConfirm={this.dialog_onConfirm}
+          />
+        )}
+        <HDataTable
+          title="Dentistas"
+          searchPlaceHolder="nome..."
+          onSearch={this.table_onSearch}
+          onSearchCancel={this.table_onSearchCancel}
+          data={this.formatarDadosTabela()}
+          onSelect={this.table_onSelect}
+          onChangePage={this.table_onChangePage}
+          onChangePageSize={this.table_onChangePageSize}
+          onSort={this.table_onSort}
+          onCreateRegister={this.table_onCreateRegister}
+          orderBy={this.state.table_orderBy}
+          ascOrder={this.state.table_ascOrder}
+          actions={this.getTableActions("dentista")}
+        />
+      </div>
     );
   }
 }

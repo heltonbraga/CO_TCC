@@ -6,11 +6,23 @@ import WizButtons from "./WizButtons";
 
 const Contato = (props) => {
   const { onCancel, reset, handleSubmit } = props;
+
+  React.useEffect(() => {
+    if (!props.pessoa) {
+      return;
+    }
+    props.change("email", props.pessoa.email);
+    props.change("tel1", props.pessoa.tel1);
+    props.change("tel2", props.pessoa.tel2);
+  }, [props.pessoa]);
+
+  const off = props.readOnly ? "-" : "";
+
   return (
     <form onSubmit={handleSubmit}>
-      <Field name="email" type="text-email" component={renderField} label="Email" />
-      <Field name="tel1" type="text-cell" component={renderField} label="Celular" />
-      <Field name="tel2" type="text-fixo" component={renderField} label="Fixo" />
+      <Field name="email" type={"text-email" + off} component={renderField} label="Email" />
+      <Field name="tel1" type={"text-cell" + off} component={renderField} label="Celular" />
+      <Field name="tel2" type={"text-fixo" + off} component={renderField} label="Fixo" />
       <WizButtons
         onCancel={(e) => {
           reset();
@@ -27,4 +39,5 @@ export default reduxForm({
   destroyOnUnmount: false, //        <------ preserve form data
   forceUnregisterOnUnmount: true, // <------ unregister fields on unmount
   validate,
+  enableReinitialize: true,
 })(Contato);

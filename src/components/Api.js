@@ -42,6 +42,20 @@ export const getDentistasByNome = (nome, token, onSuccess, onError) => {
     );
 };
 
+export const getDentista = (id, admin, token, onSuccess, onError) => {
+  axios
+    .get("dentistas/" + id, {
+      params: {
+        admin: admin,
+      },
+      headers: { Authorization: "Bearer: " + token },
+    })
+    .then(
+      (res) => onSuccess(res),
+      (err) => onError(digerirErro(err))
+    );
+};
+
 export const getPerfil = (user) => {
   //TODO / temporariamente mocked
   let perfil = "paciente";
@@ -54,7 +68,7 @@ export const getPerfil = (user) => {
       perfil = "auxiliar";
     }
   }
-  return perfil;
+  return { perfil: perfil, id: 1 };
 };
 
 export const getBancos = (onSuccess, onError) => {
@@ -76,6 +90,32 @@ export const createDentista = (data, token, onSuccess, onError, extra) => {
     .post("dentistas", data, {
       headers: { Authorization: "Bearer: " + token },
     })
+    .then(
+      (res) => onSuccess(res, extra),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const updateDentista = (data, token, onSuccess, onError, extra) => {
+  axios
+    .patch("dentistas", data, {
+      headers: { Authorization: "Bearer: " + token },
+    })
+    .then(
+      (res) => onSuccess(res, extra),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const deleteDentista = (data, token, onSuccess, onError, extra) => {
+  axios
+    .delete(
+      "dentistas",
+      { data: data },
+      {
+        headers: { Authorization: "Bearer: " + token },
+      }
+    )
     .then(
       (res) => onSuccess(res, extra),
       (err) => onError(digerirErro(err))
