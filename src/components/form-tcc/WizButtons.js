@@ -1,25 +1,24 @@
 import React from "react";
-import { Button } from "@material-ui/core";
-import { Container, Row, Col } from "reactstrap";
+import { Button, Grid } from "@material-ui/core";
 
 const WizButtons = (props) => {
   const { previousPage, stepNumber, stepCount, pristine, submitting, valid } = props.resto;
   return (
-    <Container className="WizFormNavButtonsContainer" fluid={true}>
-      <Row>
-        <Col xs={4} md={{ size: 2, offset: 3 }}>
+    <div style={{ "marginTop": "30px" }}>
+      <Grid container justify="center" spacing={2}>
+        <Grid item>
           <Button variant="contained" color="secondary" onClick={props.onCancel}>
             Cancelar
           </Button>
-        </Col>
-        <Col xs={2} md={2}>
+        </Grid>
+        <Grid item>
           {stepNumber > 1 && (
             <Button variant="contained" onClick={previousPage}>
               Voltar
             </Button>
           )}
-        </Col>
-        <Col xs={4} md={{ size: 2 }}>
+        </Grid>
+        <Grid item>
           <Button
             type="submit"
             variant="contained"
@@ -28,9 +27,9 @@ const WizButtons = (props) => {
           >
             {stepNumber < stepCount ? "Avançar" : "Concluir"}
           </Button>
-        </Col>
-      </Row>
-    </Container>
+        </Grid>
+      </Grid>
+    </div>
   );
 };
 export default WizButtons;

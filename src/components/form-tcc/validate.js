@@ -45,6 +45,10 @@ const validate = (values) => {
     errors.nome = MSG_REQUIRED;
   }
 
+  if (!values.formacao) {
+    errors.formacao = MSG_REQUIRED;
+  }
+
   if (!values.cpf) {
     errors.cpf = MSG_REQUIRED;
   } else if (

@@ -1,10 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import { setToken, setMessage } from "./actions";
+import { setToken, setMessage, setPerfil } from "./actions";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Container, Button, Nav, Alert } from "reactstrap";
-import CircularProgress from '@material-ui/core/CircularProgress'
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { getPerfil } from "./components/Api";
 
@@ -29,22 +29,19 @@ function App(props) {
     getAccessTokenSilently,
   } = useAuth0();
 
-  if (isLoading) {
-    return <CircularProgress />;
+  if (isAuthenticated && !props.perfil) {
+    getPerfil(user, props.setPerfil);
+    getAccessTokenSilently().then((token) => props.setToken(token));
   }
 
-  let appUser = { perfil: "", id: 0 };
-  if (isAuthenticated) {
-    appUser = getPerfil(user);
-    getAccessTokenSilently().then((token) => props.setToken(token));
+  if (isLoading) {
+    return <CircularProgress />;
   }
 
   const logoutWithRedirect = () =>
     logout({
       returnTo: window.location.origin,
     });
-
-  const perfil = appUser.perfil;
 
   const messageAlert = () => {
     if (props.message) {
@@ -65,7 +62,7 @@ function App(props) {
                 Entrar
               </Button>
             )}
-            {isAuthenticated && <Menu perfil={perfil} user={user} logout={logoutWithRedirect} />}
+            {isAuthenticated && <Menu user={user} logout={logoutWithRedirect} />}
           </Nav>
         </div>
         <Container className="flex-grow-1 mt-5">
@@ -77,11 +74,11 @@ function App(props) {
             {messageAlert()}
           </Alert>
           <Switch>
-            <Route exact path="/" render={(props) => <Home perfil={perfil} />} />
-            <ProtectedRoute path="/administrador" perfil={perfil} component={HomeAdmin} />
-            <ProtectedRoute path="/dentista" perfil={perfil} component={HomeDentista} />
-            <ProtectedRoute path="/auxiliar" perfil={perfil} component={HomeAuxiliar} />
-            <ProtectedRoute path="/paciente" perfil={perfil} component={HomePaciente} />
+            <Route exact path="/" render={(props) => <Home />} />
+            <ProtectedRoute path="/administrador" component={HomeAdmin} />
+            <ProtectedRoute path="/dentista" component={HomeDentista} />
+            <ProtectedRoute path="/auxiliar" component={HomeAuxiliar} />
+            <ProtectedRoute path="/paciente" component={HomePaciente} />
             <Route
               path="*"
               component={() => (
@@ -99,7 +96,7 @@ function App(props) {
 }
 
 const mapStateToProps = (state) => {
-  return { setToken: state.setToken, message: state.message };
+  return { setToken: state.setToken, message: state.message, perfil: state.perfil };
 };
 
-export default connect(mapStateToProps, { setToken, setMessage })(App);
+export default connect(mapStateToProps, { setToken, setMessage, setPerfil })(App);

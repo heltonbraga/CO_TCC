@@ -1,7 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { DropdownItem, DropdownToggle, DropdownMenu, Dropdown } from "reactstrap";
-import { menuSelect } from "../actions";
+import { menuSelect, setTela } from "../actions";
+import { CircularProgress } from "@material-ui/core";
 
 class Menu extends React.Component {
   state = { menuAberto: true };
@@ -28,23 +29,32 @@ class Menu extends React.Component {
               width="70"
             />
           </DropdownItem>
-          <DropdownItem header style={{ textAlign: "center" }}>
-            {this.props.perfil}
-          </DropdownItem>
-          <DropdownItem divider />
-          {this.props.opcoesMenu.map((opcao) => {
-            return this.props.perfil === opcao.perfil ? (
-              <DropdownItem
-                style={{ textAlign: "right" }}
-                onClick={(e) => this.props.menuSelect(opcao.acao)}
-                key={opcao.acao}
-              >
-                {opcao.label}
+          {this.props.perfil ? (
+            <div>
+              <DropdownItem header style={{ textAlign: "center" }}>
+                {this.props.perfil.perfil}
               </DropdownItem>
-            ) : (
-              ""
-            );
-          })}
+              <DropdownItem divider />
+              {this.props.opcoesMenu.map((opcao) => {
+                return this.props.perfil.perfil === opcao.perfil ? (
+                  <DropdownItem
+                    style={{ textAlign: "right" }}
+                    onClick={(e) => {
+                      this.props.menuSelect(opcao.acao);
+                      this.props.setTela("");
+                    }}
+                    key={opcao.acao}
+                  >
+                    {opcao.label}
+                  </DropdownItem>
+                ) : (
+                  ""
+                );
+              })}
+            </div>
+          ) : (
+            <CircularProgress />
+          )}
           <DropdownItem divider />
           <DropdownItem style={{ textAlign: "right" }} onClick={this.props.logout}>
             Sair
@@ -56,7 +66,7 @@ class Menu extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  return { opcoesMenu: state.opcoesMenu };
+  return { opcoesMenu: state.opcoesMenu, perfil: state.perfil, tela: state.tela };
 };
 
-export default connect(mapStateToProps, { menuSelect })(Menu);
+export default connect(mapStateToProps, { menuSelect, setTela })(Menu);

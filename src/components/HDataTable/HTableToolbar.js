@@ -104,11 +104,12 @@ export default function HTableToolbar(props) {
           )}
         </Form>
       </div>
+      <div>{props.hasCenterPiece && props.centerPiece()}</div>
       <div style={{ marginLeft: "auto" }}>
         <Tooltip title="novo">
           <AddCircleOutlineIcon color="primary" onClick={props.onCreateRegister} />
         </Tooltip>{" "}
-        <Tooltip title="exportar">
+        <Tooltip title="excel">
           <SaveAltIcon onClick={props.onExport} />
         </Tooltip>
       </div>

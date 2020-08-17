@@ -12,6 +12,13 @@ export const setToken = (token) => {
   };
 };
 
+export const setPerfil = (perfil) => {
+  return {
+    type: "PERFIL",
+    payload: perfil,
+  };
+};
+
 export const setMessage = (message) => {
   return {
     type: "MESSAGE",
@@ -20,7 +27,6 @@ export const setMessage = (message) => {
 };
 
 export const setTela = (tela) => {
-  console.log("nova tela: " + tela);
   return {
     type: "TELA",
     payload: tela,

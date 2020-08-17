@@ -6,6 +6,7 @@ export const opcoesMenuReducer = (perfil) => {
     { perfil: "administrador", label: "Dentistas", acao: "adminDent" },
     { perfil: "administrador", label: "Auxiliares", acao: "adminAux" },
     { perfil: "administrador", label: "Procedimentos", acao: "adminProc" },
+    { perfil: "administrador", label: "Atendimentos", acao: "adminAtend" },
     { perfil: "administrador", label: "Relatório", acao: "adminRel" },
     { perfil: "administrador", label: "Agenda", acao: "adminAgenda" },
     //
@@ -33,6 +34,13 @@ export const setTokenReducer = (token = null, action) => {
   return token;
 };
 
+export const perfilReducer = (perfil = null, action) => {
+  if (action.type === "PERFIL") {
+    return action.payload;
+  }
+  return perfil;
+};
+
 export const messageReducer = (message = null, action) => {
   if (action.type === "MESSAGE") {
     return action.payload;
@@ -52,6 +60,7 @@ export default combineReducers({
   opcoesMenu: opcoesMenuReducer,
   opcaoSelecionadaMenu: opcaoSelecionadaMenuReducer,
   setToken: setTokenReducer,
+  perfil: perfilReducer,
   message: messageReducer,
   tela: telaReducer,
 });

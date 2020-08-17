@@ -44,6 +44,11 @@
   width: 60%;
 }
 
+.filtroAtd {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
 .WizForm {
   padding: 10px;
   margin: 10px;
@@ -63,7 +68,7 @@
   width: 60%;
 }
 
-.ListaDispItemText{
+.ListaDispItemText {
   text-align: right;
 }
 

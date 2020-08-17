@@ -1,7 +1,7 @@
 import React from "react";
 import { CircularProgress, Dialog, Slide } from "@material-ui/core";
-import { getDentista } from "../Api";
-import { mapDentistaToPdf } from "../form-tcc/dataFormat";
+import { getAuxiliar } from "../Api";
+import { mapAuxiliarToPdf } from "../form-tcc/dataFormat";
 import { PDFDownloadLink, Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 
 // Create styles
@@ -27,9 +27,9 @@ export default function PdfDentista(props) {
   const [open, setOpen] = React.useState(true);
 
   React.useEffect(() => {
-    getDentista(props.idDentista, props.idUser, props.setToken, gerarPdf, showError);
+    getAuxiliar(props.idAuxiliar, props.idUser, props.setToken, gerarPdf, showError);
     setOpen(true);
-  }, [props.idDentista]);
+  }, [props.idAuxiliar]);
 
   const showError = (err) => {
     setErro("Falha ao buscar registro");
@@ -39,7 +39,7 @@ export default function PdfDentista(props) {
     setData(
       <Document>
         <Page size="A4" style={styles.page} wrap>
-          {mapDentistaToPdf(res.data)}
+          {mapAuxiliarToPdf(res.data)}
         </Page>
       </Document>
     );
@@ -58,7 +58,7 @@ export default function PdfDentista(props) {
       {data === null && erro === null && <CircularProgress />}
       {erro !== null && <span>{erro}</span>}
       {data !== null && (
-        <PDFDownloadLink document={data} fileName={"dentista_" + props.idDentista + ".pdf"}>
+        <PDFDownloadLink document={data} fileName={"auxiliar_" + props.idAuxiliar + ".pdf"}>
           {({ blob, url, loading, error }) => (loading ? "Loading document..." : "Download now!")}
         </PDFDownloadLink>
       )}

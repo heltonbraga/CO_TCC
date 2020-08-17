@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import { Container, Row, Col, Button } from "reactstrap";
 import { SocialIcon } from "react-social-icons";
@@ -6,7 +7,7 @@ import { SocialIcon } from "react-social-icons";
 import whatsappIcon from "./img/whatsappIcon.png";
 import fotoHome from "./img/fotoHome.jpg";
 
-export default class Home extends React.Component {
+class Home extends React.Component {
   formatarTelefone = (num) => {
     return "(" + num.slice(0, 2) + ") " + num.slice(2, 7) + " " + num.slice(7);
   };
@@ -24,7 +25,7 @@ export default class Home extends React.Component {
     let msg = window.encodeURIComponent(texto);
     let contato = "85999545922";
     return this.props.perfil ? (
-      <Redirect to={"/" + this.props.perfil} />
+      <Redirect to={"/" + this.props.perfil.perfil} />
     ) : (
       <Container className="Home" fluid={true}>
         <Row>
@@ -94,3 +95,9 @@ export default class Home extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return { perfil: state.perfil };
+};
+
+export default connect(mapStateToProps, {})(Home);

@@ -1,18 +1,18 @@
 import React from "react";
 import { connect } from "react-redux";
 import { CircularProgress, Dialog } from "@material-ui/core";
-import { getAllDentistas, getDentistasByNome, deleteDentista } from "../Api";
+import { getAllAuxiliares, getAuxiliaresByNome, deleteAuxiliar } from "../Api";
 import HDataTable from "../HDataTable/HDataTable";
 import { setMessage, setTela } from "../../actions";
-import { mapDentistaToExcel } from "../form-tcc/dataFormat";
+import { mapAuxiliarToExcel } from "../form-tcc/dataFormat";
 import HDialog from "./HDialog";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
-import PdfDentista from "./PdfDentista";
+import PdfAuxiliar from "./PdfAuxiliar";
 
-class TabelaDentistas extends React.Component {
+class TabelaAuxiliares extends React.Component {
   state = {
-    dentistas: null,
+    auxiliares: null,
     table_pageSize: 10,
     table_page: 1,
     table_orderBy: "nome",
@@ -24,19 +24,19 @@ class TabelaDentistas extends React.Component {
   };
 
   componentDidMount() {
-    getAllDentistas(
+    getAllAuxiliares(
       this.state.table_page,
       this.state.table_pageSize,
       this.state.table_orderBy + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showDentistas,
+      this.showAuxiliares,
       this.showError
     );
   }
 
-  showDentistas = (res) => {
+  showAuxiliares = (res) => {
     if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
-      this.props.setMessage({ color: "warning", text: "Nenhum dentista encontrado" });
+      this.props.setMessage({ color: "warning", text: "Nenhum auxiliar encontrado" });
       return;
     }
     let ord = res.data.parametros.order ? res.data.parametros.order : "nome-asc";
@@ -45,7 +45,7 @@ class TabelaDentistas extends React.Component {
     }
     let i = ord.indexOf("-");
     this.setState({
-      dentistas: res.data,
+      auxiliares: res.data,
       table_page: res.data.parametros.page ? res.data.parametros.page : 1,
       table_pageSize: res.data.parametros.pagesize ? res.data.parametros.pagesize : 10,
       table_orderBy: ord.slice(0, i),
@@ -57,7 +57,7 @@ class TabelaDentistas extends React.Component {
     this.props.setMessage({ color: "warning", text: err });
   };
 
-  getDentistaHeader = () => {
+  getAuxiliarHeader = () => {
     return [
       { id: "nr_cro", numeric: false, disablePadding: false, label: "CRO", style: { width: 80 } },
       { id: "nome", numeric: false, disablePadding: false, label: "Nome" },
@@ -84,7 +84,7 @@ class TabelaDentistas extends React.Component {
   };
 
   formatarDadosTabela = () => {
-    const den = this.state.dentistas;
+    const den = this.state.auxiliares;
     if (!den) {
       return null;
     }
@@ -98,7 +98,7 @@ class TabelaDentistas extends React.Component {
       };
     });
     return {
-      headCells: this.getDentistaHeader(),
+      headCells: this.getAuxiliarHeader(),
       rows: rows,
       total: den.total,
       page: this.state.table_page,
@@ -107,16 +107,16 @@ class TabelaDentistas extends React.Component {
   };
 
   table_onSearch = (event, key) => {
-    getDentistasByNome(key, this.props.setToken, this.showDentistas, this.showError);
+    getAuxiliaresByNome(key, this.props.setToken, this.showAuxiliares, this.showError);
   };
 
   table_onSearchCancel = () => {
-    getAllDentistas(
+    getAllAuxiliares(
       this.state.table_page,
       this.state.table_pageSize,
       this.state.table_orderBy + (this.state.table_ascOrder ? "-asc" : "-desc"),
       this.props.setToken,
-      this.showDentistas,
+      this.showAuxiliares,
       this.showError
     );
   };
@@ -126,23 +126,23 @@ class TabelaDentistas extends React.Component {
   };
 
   table_onChangePage = (event, pageNumber) => {
-    getAllDentistas(
+    getAllAuxiliares(
       pageNumber + 1,
       this.state.table_pageSize,
       this.alterKey(this.state.table_orderBy) + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showDentistas,
+      this.showAuxiliares,
       this.showError
     );
   };
 
   table_onChangePageSize = (event) => {
-    getAllDentistas(
+    getAllAuxiliares(
       this.state.table_page,
       parseInt(event.target.value, 10),
       this.alterKey(this.state.table_orderBy) + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showDentistas,
+      this.showAuxiliares,
       this.showError
     );
   };
@@ -150,22 +150,22 @@ class TabelaDentistas extends React.Component {
   table_onSort = (event, key) => {
     let asc =
       key === this.state.table_orderBy && this.state.table_ascOrder === "asc" ? "desc" : "asc";
-    getAllDentistas(
+    getAllAuxiliares(
       this.state.table_page,
       this.state.table_pageSize,
       this.alterKey(key) + "-" + asc,
       this.props.setToken,
-      this.showDentistas,
+      this.showAuxiliares,
       this.showError
     );
   };
 
   table_onCreateRegister = (event) => {
-    this.props.setTela("CREATE_DENTISTA");
+    this.props.setTela("CREATE_AUXILIAR");
   };
 
   table_onEditRegister = (event, key) => {
-    this.props.setTela("EDIT_DENTISTA:" + key);
+    this.props.setTela("EDIT_AUXILIAR:" + key);
   };
 
   table_onDeleteRegister = (event, key) => {
@@ -173,11 +173,11 @@ class TabelaDentistas extends React.Component {
   };
 
   table_onSelect = (event, key) => {
-    this.props.setTela("VIEW_DENTISTA:" + key);
+    this.props.setTela("VIEW_AUXILIAR:" + key);
   };
 
   table_export = (event) => {
-    getAllDentistas(
+    getAllAuxiliares(
       1,
       10000,
       "nome-asc",
@@ -195,7 +195,7 @@ class TabelaDentistas extends React.Component {
       this.setState({ dataExport: [] });
     }
     let data = res.data.registros.map((d) => {
-      return mapDentistaToExcel(d);
+      return mapAuxiliarToExcel(d);
     });
     console.log(data);
     const ws = XLSX.utils.json_to_sheet(data);
@@ -218,7 +218,7 @@ class TabelaDentistas extends React.Component {
   };
 
   dialog_onConfirm = (event) => {
-    deleteDentista(
+    deleteAuxiliar(
       { id: this.state.delDialogKey, admin: this.props.perfil.id },
       this.props.setToken,
       this.onDeleteSuccess,
@@ -227,21 +227,21 @@ class TabelaDentistas extends React.Component {
   };
 
   onDeleteSuccess = () => {
-    getAllDentistas(
+    getAllAuxiliares(
       this.state.table_page,
       this.state.table_pageSize,
       this.state.table_orderBy + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showDentistas,
+      this.showAuxiliares,
       this.showError
     );
     this.setState({ delDialogOpen: false, delDialogKey: null });
     this.props.setMessage({ color: "primary", text: "Cadastro deletado!" });
   };
 
-  getDentistaSelecionado = () => {
-    return this.state.dentistas && this.state.delDialogKey
-      ? this.state.dentistas.registros.filter((d) => d.id === this.state.delDialogKey)[0]
+  getAuxiliarSelecionado = () => {
+    return this.state.auxiliares && this.state.delDialogKey
+      ? this.state.auxiliares.registros.filter((d) => d.id === this.state.delDialogKey)[0]
       : {};
   };
 
@@ -261,7 +261,7 @@ class TabelaDentistas extends React.Component {
         {this.state.wait && <CircularProgress />}
         {this.state.delDialogKey && (
           <HDialog
-            data={this.getDentistaSelecionado()}
+            data={this.getAuxiliarSelecionado()}
             open={this.state.delDialogOpen}
             onClose={(e) => this.setState({ delDialogOpen: false })}
             onCancel={(e) => this.setState({ delDialogOpen: false })}
@@ -269,15 +269,15 @@ class TabelaDentistas extends React.Component {
           />
         )}
         {this.state.pdfDialogKey && (
-          <PdfDentista
-            idDentista={this.state.pdfDialogKey}
+          <PdfAuxiliar
+            idAuxiliar={this.state.pdfDialogKey}
             idUser={this.props.perfil.id}
             setToken={this.props.setToken}
             onClose={(e) => this.setState({ pdfDialogKey: null })}
           />
         )}
         <HDataTable
-          title="Dentistas"
+          title="Auxiliares"
           searchPlaceHolder="filtrar por nome..."
           onSearch={this.table_onSearch}
           onExport={this.table_export}
@@ -291,7 +291,7 @@ class TabelaDentistas extends React.Component {
           onCreateRegister={this.table_onCreateRegister}
           orderBy={this.state.table_orderBy}
           ascOrder={this.state.table_ascOrder}
-          actions={this.getTableActions("dentista")}
+          actions={this.getTableActions("auxiliar")}
         />
       </div>
     );
@@ -307,4 +307,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { setMessage, setTela })(TabelaDentistas);
+export default connect(mapStateToProps, { setMessage, setTela })(TabelaAuxiliares);

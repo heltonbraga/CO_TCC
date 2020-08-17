@@ -1,44 +1,69 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
-import TabelaDentistas from "./admin-dentista/TabelaDentistas";
 import { setTela } from "../actions";
+import TabelaDentistas from "./admin-dentista/TabelaDentistas";
 import FormDentista from "./admin-dentista/FormDentista";
+import TabelaAuxiliares from "./admin-auxiliar/TabelaAuxiliares";
+import FormAuxiliar from "./admin-auxiliar/FormAuxiliar";
+import TabelaProcedimentos from "./admin-procedimento/TabelaProcedimentos";
+import FormProcedimento from "./admin-procedimento/FormProcedimento";
+import TabelaAtendimentos from "./admin-atendimento/TabelaAtendimentos";
+import FormAtendimento from "./admin-atendimento/FormAtendimento";
+import logo from "./img/logo_md.png";
 
 class HomeAdmin extends React.Component {
   renderInterno = (opcao, tela) => {
-    if (opcao === "adminDent") {
-      if (tela === "CREATE_DENTISTA") {
-        return (
-          <div>
-            <FormDentista />
-          </div>
-        );
+    if (!tela) {
+      switch (opcao) {
+        case "adminDent":
+          return <TabelaDentistas />;
+        case "adminAux":
+          return <TabelaAuxiliares />;
+        case "adminProc":
+          return <TabelaProcedimentos />;
+        case "adminAtend":
+          return <TabelaAtendimentos />;
+        default:
+          return (
+            <div>
+              <img
+                style={{
+                  position: "absolute",
+                  top: "30%",
+                  left: "40%",
+                }}
+                alt="logo"
+                src={logo}
+              />
+            </div>
+          );
       }
-
-      if (tela && tela.slice(0, 13) === "EDIT_DENTISTA") {
-        return (
-          <div>
-            <FormDentista idDentista={tela.slice(14)} />
-          </div>
-        );
-      }
-
-      if (tela && tela.slice(0, 13) === "VIEW_DENTISTA") {
-        return (
-          <div>
-            <FormDentista idDentista={tela.slice(14)} readOnly={true} />
-          </div>
-        );
-      }
-      return <TabelaDentistas />;
     }
-    return <div>Administrador</div>;
+    const p1 = tela.indexOf("_");
+    const p2 = tela.indexOf(":");
+    const acao = tela.slice(0, p1);
+    const entidade = tela.slice(p1 + 1, p2 < 0 ? tela.length : p2);
+    const id = p2 < 0 ? null : tela.slice(p2 + 1);
+    //
+    switch (entidade) {
+      case "DENTISTA":
+        return <FormDentista idDentista={id} readOnly={acao === "VIEW"} />;
+      case "AUXILIAR":
+        return <FormAuxiliar idAuxiliar={id} readOnly={acao === "VIEW"} />;
+      case "PROCEDIMENTO":
+        return <FormProcedimento idProcedimento={id} readOnly={acao === "VIEW"} />;
+      case "ATENDIMENTO":
+        return <FormAtendimento idAtendimento={id} readOnly={acao === "VIEW"} />;
+      default:
+        return <div>Administrador</div>;
+    }
   };
 
   render() {
-    return this.props.perfil !== "administrador" ? (
-      <Redirect to={"/" + this.props.perfil} />
+    let rota = this.props.perfil ? this.props.perfil.perfil : "";
+    return rota !== "administrador" ? (
+      <Redirect to={"/" + rota} />
     ) : (
       <div>{this.renderInterno(this.props.opcaoSelecionadaMenu, this.props.tela)}</div>
     );
@@ -50,6 +75,7 @@ const mapStateToProps = (state) => {
     opcaoSelecionadaMenu: state.opcaoSelecionadaMenu,
     setToken: state.setToken,
     tela: state.tela,
+    perfil: state.perfil,
   };
 };
 
