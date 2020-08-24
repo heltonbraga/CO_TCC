@@ -21,20 +21,16 @@ export default function HDialog(props) {
       aria-labelledby="alert-dialog-slide-title"
       aria-describedby="alert-dialog-slide-description"
     >
-      <DialogTitle id="alert-dialog-slide-title">Leia com atenção!</DialogTitle>
+      <DialogTitle id="alert-dialog-slide-title">{props.title}</DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-slide-description">
-          A deleção do cadastro de um procedimento é irreversível e pode impactar na
-          agenda de atendimentos. Deseja confirmar a deleção do cadastro do procedimento
-          <b>{" " + props.data.nome}</b> ?
-        </DialogContentText>
+        {props.contentRender()}
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" onClick={props.onCancel}>
-          Cancelar
+        <Button variant="contained" onClick={props.onSecondary} color="secondary">
+          {props.secondaryLabel}
         </Button>
-        <Button variant="contained" onClick={props.onConfirm} color="secondary">
-          Deletar
+        <Button variant="contained" onClick={props.onPrimary} color="primary">
+          {props.primaryLabel}
         </Button>
       </DialogActions>
     </Dialog>

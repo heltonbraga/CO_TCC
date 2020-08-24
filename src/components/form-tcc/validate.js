@@ -1,4 +1,4 @@
-const validarCPF = (strCPF) => {
+export const validarCPF = (strCPF) => {
   let Soma;
   let Resto;
   Soma = 0;
@@ -26,7 +26,7 @@ const validarCPF = (strCPF) => {
   return Resto === parseInt(strCPF.substring(10, 11));
 };
 
-const validate = (values) => {
+export const validate = (values) => {
   const errors = {};
 
   const MSG_REQUIRED = "Obrigatório";
@@ -43,6 +43,14 @@ const validate = (values) => {
 
   if (!values.nome) {
     errors.nome = MSG_REQUIRED;
+  }
+
+  if (!values.vaga) {
+    errors.vaga = MSG_REQUIRED;
+  }
+
+  if (!values.convenio) {
+    errors.convenio = MSG_REQUIRED;
   }
 
   if (!values.formacao) {
@@ -91,5 +99,3 @@ const validate = (values) => {
 
   return errors;
 };
-
-export default validate;

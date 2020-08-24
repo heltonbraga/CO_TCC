@@ -19,7 +19,7 @@ import {
 } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
-import validate from "./validate";
+import {validate} from "./validate";
 import renderField from "./renderField";
 import WizButtons from "./WizButtons";
 

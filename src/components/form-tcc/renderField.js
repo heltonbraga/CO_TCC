@@ -34,17 +34,19 @@ const renderTextField = ({ input, label, touched, invalid, error, mask, readOnly
 
 const renderSelectField = ({ input, label, touched, error, children, readOnly }) => {
   return (
-    <FormControl className="WizFormControl">
-      <InputLabel htmlFor={label}>{label}</InputLabel>
-      <Select
-        id={label}
-        error={touched && error && error.length > 0}
-        {...input}
-        children={children}
-        className="FormTextField"
-        disabled={readOnly}
-      />
-    </FormControl>
+    <div className="WizForm">
+      <FormControl className="WizFormControl">
+        <InputLabel htmlFor={label}>{label}</InputLabel>
+        <Select
+          id={label}
+          error={touched && error && error.length > 0}
+          {...input}
+          children={children}
+          className="FormTextField"
+          disabled={readOnly}
+        />
+      </FormControl>
+    </div>
   );
 };
 

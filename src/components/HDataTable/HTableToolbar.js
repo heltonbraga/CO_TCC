@@ -78,32 +78,34 @@ export default function HTableToolbar(props) {
       <Typography className="" variant="h6" id="tableTitle" component="div">
         {props.title}
       </Typography>
-      <div className={classes.search}>
-        <Form onSubmit={(e) => onSubmit(e, props, searchKey)}>
-          <InputBase
-            placeholder={props.searchPlaceHolder}
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-            inputProps={{ "aria-label": "search" }}
-            value={searchKey}
-            onChange={(e) => setSearchKey(e.target.value)}
-          />
-          {searchKey !== "" && (
-            <ClearIcon
-              color="secondary"
-              onClick={(e) => {
-                props.onSearchCancel(e);
-                setSearchKey("");
+      {!props.hasCenterPiece && (
+        <div className={classes.search}>
+          <Form onSubmit={(e) => onSubmit(e, props, searchKey)}>
+            <InputBase
+              placeholder={props.searchPlaceHolder}
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
               }}
+              inputProps={{ "aria-label": "search" }}
+              value={searchKey}
+              onChange={(e) => setSearchKey(e.target.value)}
             />
-          )}
-          {searchKey !== "" && (
-            <SearchIcon color="primary" onClick={(e) => onSubmit(e, props, searchKey)} />
-          )}
-        </Form>
-      </div>
+            {searchKey !== "" && (
+              <ClearIcon
+                color="secondary"
+                onClick={(e) => {
+                  props.onSearchCancel(e);
+                  setSearchKey("");
+                }}
+              />
+            )}
+            {searchKey !== "" && (
+              <SearchIcon color="primary" onClick={(e) => onSubmit(e, props, searchKey)} />
+            )}
+          </Form>
+        </div>
+      )}
       <div>{props.hasCenterPiece && props.centerPiece()}</div>
       <div style={{ marginLeft: "auto" }}>
         <Tooltip title="novo">

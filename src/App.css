@@ -44,9 +44,47 @@
   width: 60%;
 }
 
+.FormDateField {
+  width: 300px;
+  margin-left: 0;
+}
+
+.formDialog {
+  padding: 20px;
+  margin: 10px;
+  text-align: center;
+  align-content: center;
+  align-items: center;
+}
+
+.divCadPac {
+  padding: 20px;
+  margin: 10px;
+  align-content: center;
+  align-items: center;
+}
+
 .filtroAtd {
   display: inline-flex;
   vertical-align: middle;
+  margin-left: 30%;
+}
+
+.plusDiv {
+  margin-top: 45px;
+  margin-left: 10px;
+}
+
+.divConvenios {
+  min-width: 200px;
+  margin-top: 20px;
+  margin-left: 10%;
+  width: 100%;
+}
+
+.divSpacer {
+  display: inline-flex;
+  height: 25px;
 }
 
 .WizForm {
@@ -105,6 +143,29 @@
   max-height: 90%;
 }
 
+.calHeader {
+  text-align: center;
+  background-color: wheat;
+}
+
+.calHeaderDay {
+  text-align: center;
+  background-color: wheat;
+}
+
+.sit_agendado {
+  color: black;
+  font-weight: bold;
+}
+
+.sit_confirmado {
+  color: green;
+}
+
+.sit_cancelado {
+  color: firebrick;
+}
+
 @media (max-width: 600px) {
   .desk {
     display: none;
@@ -134,4 +195,124 @@
   .FormTextField {
     width: 90%;
   }
+}
+
+.dayDetail {
+  width: 500px;
+  min-width: 300px;
+}
+
+.dayTitle {
+  background-color: rgb(137, 210, 252);
+  text-align: center;
+  font-size: large;
+}
+
+.horasDia {
+  width: 100%;
+  display: flex;
+  border: 1px solid #aaa;
+}
+
+.vagaHora {
+  background-color: lightgray;
+  padding: 5px;
+  width: 50px;
+}
+
+.vagaLista {
+  display: flex;
+}
+
+.tagDentista {
+  font-size: 13px;
+  border-radius: 10px;
+  padding: 3px;
+  line-height: 14px;
+  background-color: rgb(137, 210, 252);
+  text-align: center;
+  text-decoration: none;
+  margin-left: 3px;
+}
+
+#calendar {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+#calendar tr,
+#calendar thead,
+#calendar tbody {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 100%;
+}
+
+#calendar td,
+#calendar th {
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+}
+
+#calendar .weekdays {
+  background: rgb(137, 210, 252);
+}
+
+#calendar .weekdays th {
+  text-align: center;
+  line-height: 20px;
+  border: none !important;
+  padding: 10px 6px;
+  color: #fff;
+  font-size: 13px;
+}
+
+#calendar td {
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+}
+
+#calendar .date {
+  text-align: center;
+  color: dimgray;
+  margin-bottom: 5px;
+  font-size: 12px;
+  padding: 4px;
+  width: 40px;
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.dayOff {
+  background-color: darkgrey;
+  color: dimgrey;
+}
+
+.turnoComVaga {
+  font-size: 13px;
+  border-radius: 5px;
+  padding: 5px;
+  margin-bottom: 5px;
+  line-height: 14px;
+  background: #e4f2f2;
+  border: 1px solid #b5dbdc;
+  color: #009aaf;
+  text-align: center;
+  text-decoration: none;
+}
+
+.turnoSemVaga {
+  font-size: 13px;
+  border-radius: 4px;
+  padding: 5px;
+  margin-bottom: 5px;
+  line-height: 14px;
+  border: 1px solid #aaa;
+  color: #aaa;
+  text-align: center;
+  text-decoration: none;
 }

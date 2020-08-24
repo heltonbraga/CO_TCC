@@ -3,23 +3,33 @@ import { connect } from "react-redux";
 import { reset } from "redux-form";
 import {
   marcarAtendimento,
+  remarcarAtendimento,
   getAtendimento,
   confirmarAtendimento,
   cancelarAtendimento,
+  getProcedimentos,
+  getAllDentistas,
 } from "../Api";
 import { setMessage, setTela } from "../../actions";
 import { CircularProgress, Dialog } from "@material-ui/core";
 import AtdPaciente from "../form-tcc/AtdPaciente";
 import AtdVaga from "../form-tcc/AtdVaga";
-import {
-  mapAtendimentoFormToRequest,
-  mapAtendimentoResponseToForm,
-} from "../form-tcc/dataFormat";
+import { mapAtendimentoFormToRequest, mapAtendimentoResponseToForm } from "../form-tcc/dataFormat";
 
 class FormAtendimento extends React.Component {
   state = { page: 0, wait: false };
 
   componentDidMount() {
+    getProcedimentos(this.loadProcedimentos, this.showError);
+    getAllDentistas(
+      1,
+      1000,
+      "nome-asc",
+      this.props.setToken,
+      this.loadDentistas,
+      this.showError,
+      null
+    );
     if (this.props.idAtendimento) {
       getAtendimento(
         this.props.idAtendimento,
@@ -32,6 +42,16 @@ class FormAtendimento extends React.Component {
       this.nextPage();
     }
   }
+
+  loadDentistas = (res) => {
+    this.setState({
+      dentistas: res.data.registros,
+    });
+  };
+
+  loadProcedimentos = (res) => {
+    this.setState({ procedimentos: res.data.registros });
+  };
 
   initForm = (data) => {
     console.log(data.data);
@@ -64,17 +84,17 @@ class FormAtendimento extends React.Component {
   };
 
   onSubmit = (values, dispatch) => {
-    const data = mapAtendimentoFormToRequest(
-      values,
-      this.props.idAtendimento,
-      this.props.perfil.id
-    );
-    console.log("TODO");
-    /*this.props.idAtendimento
-      ? updateProcedimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch)
-      : createProcedimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch);
-    */
+    console.log(values);
+    const data = mapAtendimentoFormToRequest(values, this.props.idAtendimento, this.props.perfil.id);
+    console.log(data);
+    this.props.idAtendimento
+      ? remarcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch)
+      : marcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch);
     this.setState({ wait: true });
+  };
+
+  onWait = (b) => {
+    this.setState({ wait: b });
   };
 
   onCancel = () => {
@@ -108,7 +128,7 @@ class FormAtendimento extends React.Component {
             onCancel={this.onCancel}
             stepNumber={1}
             stepCount={stepCount}
-            procedimento={dentData}
+            atendimento={dentData}
             readOnly={this.props.readOnly}
           />
         )}
@@ -126,8 +146,13 @@ class FormAtendimento extends React.Component {
             onCancel={this.onCancel}
             stepNumber={2}
             stepCount={stepCount}
-            procedimento={dentData}
+            atendimento={dentData}
+            procedimentos={this.state.procedimentos}
+            dentistas={this.state.dentistas}
+            token={this.props.setToken}
             readOnly={this.props.readOnly}
+            onWait={this.onWait}
+            showError={this.showError}
           />
         )}
       </div>

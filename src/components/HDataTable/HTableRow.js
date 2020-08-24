@@ -4,17 +4,26 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import CheckIcon from "@material-ui/icons/Check";
+import ClearIcon from "@material-ui/icons/Clear";
+import RedoIcon from "@material-ui/icons/Redo";
 
 export default class HTableRow extends React.Component {
-  renderIcon = (acao) => {
+  renderIcon = (acao, disabledActions = []) => {
+    const disabled = disabledActions.indexOf(acao) >= 0;
     if (acao === "EDITAR") {
-      return <EditIcon color="primary" />;
+      return <EditIcon color={disabled ? "disabled" : "primary"} />;
     } else if (acao === "DELETAR") {
-      return <DeleteIcon color="secondary" />;
+      return <DeleteIcon color={disabled ? "disabled" : "secondary"} />;
     } else if (acao === "EXPORTAR") {
       return <SaveAltIcon />;
+    } else if (acao === "CANCELAR") {
+      return <ClearIcon color={disabled ? "disabled" : "secondary"} />;
+    } else if (acao === "REMARCAR") {
+      return <RedoIcon style={disabled ? {} : { fill: "black" }} />;
+    } else if (acao === "CONFIRMAR") {
+      return <CheckIcon color={disabled ? "disabled" : "primary"} />;
     }
-    return <CheckIcon color="#6A6" />;
+    return <CheckIcon color="primary" />;
   };
 
   render() {
@@ -41,7 +50,7 @@ export default class HTableRow extends React.Component {
                     tooltip={action.tooltip}
                     onClick={(e) => action.call(e, row.key)}
                   >
-                    {this.renderIcon(action.icon)}
+                    {this.renderIcon(action.icon, row.disabledActions)}
                   </IconButton>
                 </Tooltip>
               );

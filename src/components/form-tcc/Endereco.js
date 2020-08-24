@@ -1,7 +1,7 @@
 import React from "react";
 import { Field, reduxForm } from "redux-form";
 import { MenuItem, ListItemText } from "@material-ui/core";
-import validate from "./validate";
+import {validate} from "./validate";
 import WizButtons from "./WizButtons";
 import renderField from "./renderField";
 

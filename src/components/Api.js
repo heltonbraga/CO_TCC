@@ -285,6 +285,82 @@ export const deleteProcedimento = (data, token, onSuccess, onError, extra) => {
     );
 };
 
+export const getAllPacientes = (token, onSuccess, onError) => {
+  axios
+    .get("pacientes", {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(
+      (res) => onSuccess(res),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const getPaciente = (id, token, onSuccess, onError) => {
+  axios
+    .get("pacientes/" + id, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(
+      (res) => onSuccess(res),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const createPaciente = (data, token, onSuccess, onError, extra) => {
+  axios
+    .post("pacientes", data, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(
+      (res) => onSuccess(res, extra),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const updatePaciente = (data, token, onSuccess, onError, extra) => {
+  axios
+    .patch("pacientes", data, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(
+      (res) => onSuccess(res, extra),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const getVagas = (dentista, procedimento, dia, extremos, token, onSuccess, onError) => {
+  axios
+    .get("vagas", {
+      params: {
+        dentista: dentista,
+        procedimento: procedimento,
+        dia: dia,
+        extremos: extremos,
+      },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(
+      (res) => onSuccess(res),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const getVagasCalendario = (dentista, procedimento, token, onSuccess, onError) => {
+  axios
+    .get("vagas/calendario", {
+      params: {
+        dentista: dentista,
+        procedimento: procedimento,
+      },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(
+      (res) => onSuccess(res),
+      (err) => onError(digerirErro(err))
+    );
+};
+
 export const getAtendimentos = (admin, dentista, dia, token, onSuccess, onError) => {
   axios
     .get("atendimentos", {
@@ -315,46 +391,46 @@ export const getAtendimento = (id, user, token, onSuccess, onError) => {
     );
 };
 
-export const marcarAtendimento = (data, token, onSuccess, onError) => {
+export const marcarAtendimento = (data, token, onSuccess, onError, extra) => {
   axios
-    .post("atendimentos/marcar", {
-      params: {
-        data: data,
-      },
+    .post("atendimentos", data, {
       headers: { Authorization: "Bearer " + token },
     })
     .then(
-      (res) => onSuccess(res),
+      (res) => onSuccess(res, extra),
       (err) => onError(digerirErro(err))
     );
 };
 
-export const confirmarAtendimento = (id, user, token, onSuccess, onError) => {
+export const remarcarAtendimento = (data, token, onSuccess, onError, extra) => {
   axios
-    .patch("atendimentos/confirmar", {
-      params: {
-        user: user,
-        id: id,
-      },
+    .patch("atendimentos", data, {
       headers: { Authorization: "Bearer " + token },
     })
     .then(
-      (res) => onSuccess(res),
+      (res) => onSuccess(res, extra),
       (err) => onError(digerirErro(err))
     );
 };
 
-export const cancelarAtendimento = (id, user, token, onSuccess, onError) => {
+export const confirmarAtendimento = (data, token, onSuccess, onError, extra) => {
   axios
-    .patch("atendimentos/cancelar", {
-      params: {
-        user: user,
-        id: id,
-      },
+    .patch("atendimentos/confirmar", data, {
       headers: { Authorization: "Bearer " + token },
     })
     .then(
-      (res) => onSuccess(res),
+      (res) => onSuccess(res, extra),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const cancelarAtendimento = (data, token, onSuccess, onError, extra) => {
+  axios
+    .patch("atendimentos/cancelar", data, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(
+      (res) => onSuccess(res, extra),
       (err) => onError(digerirErro(err))
     );
 };

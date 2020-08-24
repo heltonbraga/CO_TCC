@@ -1,22 +1,22 @@
 import React from "react";
 import { Field, reduxForm } from "redux-form";
-import MenuItem from "@material-ui/core/MenuItem";
 import {validate} from "./validate";
 import renderField from "./renderField";
 import WizButtons from "./WizButtons";
 
-const Identificacao = (props) => {
+const Paciente = (props) => {
   const { onCancel, reset, handleSubmit } = props;
 
   React.useEffect(() => {
-    if (!props.pessoa) {
+    if (!props.paciente) {
       return;
     }
-    props.change("nome", props.pessoa.nome);
-    props.change("cpf", props.pessoa.cpf);
-    props.change("nascimento", props.pessoa.nascimento);
-    props.change("sexo", props.pessoa.sexo);
-  }, [props.pessoa]);
+    props.change("nome", props.paciente.nome);
+    props.change("cpf", props.paciente.cpf);
+    props.change("nascimento", props.paciente.nascimento);
+    props.change("email", props.paciente.email);
+    props.change("tel1", props.paciente.tel1);
+  }, [props.paciente]);
 
   const off = props.readOnly ? "-" : "";
 
@@ -30,10 +30,8 @@ const Identificacao = (props) => {
         component={renderField}
         label="Data de Nascimento"
       />
-      <Field name="sexo" type={"combo-" + off} component={renderField} label="Sexo">
-        <MenuItem value="M">Masculino</MenuItem>
-        <MenuItem value="F">Feminino</MenuItem>
-      </Field>
+      <Field name="email" type={"text-email" + off} component={renderField} label="Email" />
+      <Field name="tel1" type={"text-cell" + off} component={renderField} label="Celular" />
       <WizButtons
         onCancel={(e) => {
           reset();
@@ -46,9 +44,9 @@ const Identificacao = (props) => {
 };
 
 export default reduxForm({
-  form: "wizard", //                 <------ same form name
-  destroyOnUnmount: false, //        <------ preserve form data
-  forceUnregisterOnUnmount: true, // <------ unregister fields on unmount
+  form: "cad_pac", 
+  destroyOnUnmount: false,
+  forceUnregisterOnUnmount: true,
   validate,
   enableReinitialize: true,
-})(Identificacao);
+})(Paciente);

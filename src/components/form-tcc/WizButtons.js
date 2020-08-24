@@ -23,7 +23,7 @@ const WizButtons = (props) => {
             type="submit"
             variant="contained"
             color="primary"
-            disabled={!valid || pristine || submitting}
+            disabled={!valid || pristine || submitting || props.invalid}
           >
             {stepNumber < stepCount ? "Avançar" : "Concluir"}
           </Button>

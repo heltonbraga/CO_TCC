@@ -1,22 +1,40 @@
 import React from "react";
 import { connect } from "react-redux";
-import { CircularProgress, Dialog, TextField } from "@material-ui/core";
+import {
+  CircularProgress,
+  Dialog,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  Button,
+} from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { getAtendimentos, getAllDentistas } from "../Api";
+import {
+  getAtendimentos,
+  getAllDentistas,
+  cancelarAtendimento,
+  confirmarAtendimento,
+} from "../Api";
 import HCustomTable from "../HDataTable/HCustomTable";
 import { setMessage, setTela } from "../../actions";
-import { mapAtendimentoToExcel } from "../form-tcc/dataFormat";
-import HDialog from "./HDialog";
+import { mapAtendimentoToExcel, formatar } from "../form-tcc/dataFormat";
+import HDialog from "../HDataTable/HDialog";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
 import moment from "moment";
+import whatsappIcon from "../img/whatsappIcon.png";
+
+const motivos = ["Agenda do dentista", "Agenda do paciente", "Força maior"];
 
 class TabelaAtendimentos extends React.Component {
   state = {
     atendimentos: null,
-    delDialogOpen: false,
-    delDialogKey: null,
-    pdfDialogKey: null,
+    confirmarDialogOpen: false,
+    cancelarDialogOpen: false,
+    remarcarDialogOpen: false,
+    motivoCancelamento: motivos[0],
+    dialogKey: null,
     dia: moment().format("YYYY-MM-DD"),
     dentista: 0,
     wait: false,
@@ -81,17 +99,22 @@ class TabelaAtendimentos extends React.Component {
   };
 
   getTableActions = (entidade) => {
-    let editar = {
-      tooltip: "editar",
-      call: this.table_onEditRegister,
-      icon: "EDITAR",
+    let confirmar = {
+      tooltip: "confirmar",
+      call: this.table_onConfirmarAtd,
+      icon: "CONFIRMAR",
     };
-    let excluir = {
-      tooltip: "excluir",
-      call: this.table_onDeleteRegister,
-      icon: "DELETAR",
+    let remarcar = {
+      tooltip: "remarcar",
+      call: this.table_onRemarcarAtd,
+      icon: "REMARCAR",
     };
-    return [editar, excluir];
+    let cancelar = {
+      tooltip: "cancelar",
+      call: this.table_onCancelarAtd,
+      icon: "CANCELAR",
+    };
+    return [confirmar, remarcar, cancelar];
   };
 
   formatarDadosTabela = () => {
@@ -102,11 +125,17 @@ class TabelaAtendimentos extends React.Component {
     const rows = den.registros.map((d) => {
       return {
         key: d.id,
+        disabledActions:
+          d.dm_situacao === "cancelado" || d.dm_situacao === "realizado"
+            ? ["CONFIRMAR", "REMARCAR", "CANCELAR"]
+            : d.dm_situacao === "confirmado"
+            ? ["CONFIRMAR"]
+            : [],
         view: [
-          { value: d.horario, align: "left" },
-          { value: d.paciente, align: "left" },
-          { value: d.situacao, align: "left" },
-          { value: d.procedimento, align: "left" },
+          { value: moment(d.dt_horario).format("HH:mm"), align: "left" },
+          { value: d.Paciente.Pessoa.nome, align: "left" },
+          { value: d.Procedimento.nome, align: "left" },
+          { value: <span className={"sit_" + d.dm_situacao}>{d.dm_situacao}</span>, align: "left" },
         ],
       };
     });
@@ -121,16 +150,36 @@ class TabelaAtendimentos extends React.Component {
     this.props.setTela("CREATE_ATENDIMENTO");
   };
 
-  table_onEditRegister = (event, key) => {
-    this.props.setTela("EDIT_ATENDIMENTO:" + key);
+  table_onConfirmarAtd = (event, key) => {
+    let atd = this.getAtendimentoSelecionado(key);
+    if (atd.dm_situacao !== "agendado") {
+      return;
+    }
+    this.setState({ confirmarDialogOpen: true, dialogKey: key });
   };
 
-  table_onDeleteRegister = (event, key) => {
-    this.setState({ delDialogOpen: true, delDialogKey: key });
+  table_onCancelarAtd = (event, key) => {
+    let atd = this.getAtendimentoSelecionado(key);
+    if (atd.dm_situacao === "cancelado" || atd.dm_situacao === "realizado") {
+      return;
+    }
+    this.setState({ cancelarDialogOpen: true, dialogKey: key });
+  };
+
+  table_onRemarcarAtd = (event, key) => {
+    let atd = this.getAtendimentoSelecionado(key);
+    if (atd.dm_situacao === "cancelado" || atd.dm_situacao === "realizado") {
+      return;
+    }
+    console.log("REMARCAR_ATENDIMENTO:" + key);
+    //this.setState({ delDialogOpen: true, delDialogKey: key });
   };
 
   table_onSelect = (event, key) => {
-    this.props.setTela("VIEW_ATENDIMENTO:" + key);
+    let atd = this.getAtendimentoSelecionado(key);
+    console.log("INICIAR_ATENDIMENTO:");
+    console.log(atd);
+    //this.props.setTela("VIEW_ATENDIMENTO:" + key);
   };
 
   table_export = (event) => {
@@ -171,20 +220,34 @@ class TabelaAtendimentos extends React.Component {
     this.setState({ wait: false });
   };
 
-  table_onPDF = (event, key) => {
-    this.setState({ pdfDialogOpen: true, pdfDialogKey: key });
-  };
-
-  dialog_onConfirm = (event) => {
-    /*deleteProcedimento(
-      { id: this.state.delDialogKey, admin: this.props.perfil.id },
+  cancelarAtendimento = () => {
+    cancelarAtendimento(
+      {
+        id: this.state.dialogKey,
+        user: this.props.perfil.id,
+        motivo: this.state.motivoCancelamento,
+      },
       this.props.setToken,
-      this.onDeleteSuccess,
-      this.showError
-    );*/
+      this.onDialogRequestSuccess,
+      this.showError,
+      "Atendimento cancelado."
+    );
   };
 
-  onDeleteSuccess = () => {
+  confirmarAtendimento = () => {
+    confirmarAtendimento(
+      {
+        id: this.state.dialogKey,
+        user: this.props.perfil.id,
+      },
+      this.props.setToken,
+      this.onDialogRequestSuccess,
+      this.showError,
+      "Atendimento confirmado."
+    );
+  };
+
+  onDialogRequestSuccess = (res, msg) => {
     getAtendimentos(
       this.props.perfil.id,
       this.state.dentista,
@@ -193,15 +256,19 @@ class TabelaAtendimentos extends React.Component {
       this.showAtendimentos,
       this.showError
     );
-    this.setState({ delDialogOpen: false, delDialogKey: null });
-    this.props.setMessage({ color: "primary", text: "Cadastro deletado!" });
+    this.setState({
+      confirmarDialogOpen: false,
+      cancelarDialogOpen: false,
+      remarcarDialogOpen: false,
+      dialogKey: null,
+    });
+    this.props.setMessage({ color: "primary", text: msg });
   };
 
-  getAtendimentoSelecionado = () => {
-    /*return this.state.atendimentos && this.state.delDialogKey
-      ? this.state.atendimentos.registros.filter((d) => d.id === this.state.delDialogKey)[0]
-      : {};*/
-    console.log("TODO: getAtendimentoSelecionado");
+  getAtendimentoSelecionado = (key = this.state.dialogKey) => {
+    return this.state.atendimentos && key
+      ? this.state.atendimentos.registros.filter((d) => d.id === key)[0]
+      : {};
   };
 
   onChangeDentista = (val) => {
@@ -226,6 +293,68 @@ class TabelaAtendimentos extends React.Component {
       this.props.setToken,
       this.showAtendimentos,
       this.showError
+    );
+  };
+
+  renderCancelamento = () => {
+    return (
+      <div>
+        <p>Atenção: O cancelamento de um atendimento é irreversível!</p>
+        <p>
+          Se deseja prosseguir, certifique-se de que as partes envolvidas estejam cientes de que o
+          atendimento foi cancelado.
+        </p>
+        <InputLabel htmlFor="motivoCancelamento">Motivo do cancelamento</InputLabel>
+        <Select
+          id="motivoCancelamento"
+          className="FormTextField"
+          value={this.state.motivoCancelamento}
+          onChange={(e) => this.setState({ motivoCancelamento: e.target.value })}
+        >
+          {motivos.map((m, i) => (
+            <MenuItem value={m} key={i}>
+              {m}
+            </MenuItem>
+          ))}
+        </Select>
+      </div>
+    );
+  };
+
+  renderConfirmacao = () => {
+    let atd = this.getAtendimentoSelecionado();
+    let msg =
+      "Olá! Podemos confirmar seu atendimento na clínica odontológica TCC marcado para " +
+      moment(atd.dt_horario).format("DD/MM/YYYY") +
+      " às " +
+      moment(atd.dt_horario).format("hh:mm") +
+      "h com o(a) dr(a). " +
+      atd.Dentista.Pessoa.nome +
+      "?";
+    let contatoFormatado = atd.Paciente.Pessoa.nr_tel;
+    let contato = contatoFormatado.replace(/(\D)/g, "");
+    return (
+      <div>
+        <p>Lembre-se de entrar em contato com o paciente antes de registrar a confirmação.</p>
+        <p>Ao entrar em contato com o paciente, repasse as orientações pré-atendimento.</p>
+        <span className="desk">
+          <a
+            target="_blank"
+            href={"https://api.whatsapp.com/send?phone=+55" + contato + "&text=" + msg}
+          >
+            <Button style={{ backgroundColor: "#25d366", textDecoration: "none" }}>
+              Contato: {contatoFormatado} <img alt="whatsapp" src={whatsappIcon} />
+            </Button>
+          </a>
+        </span>
+        <span className="cell">
+          <a href={"whatsapp://send?phone=+55" + contato + "&text=" + msg}>
+            <Button style={{ backgroundColor: "#25d366", textDecoration: "none" }}>
+              Contato: {contatoFormatado} <img alt="whatsapp" src={whatsappIcon} />
+            </Button>
+          </a>
+        </span>
+      </div>
     );
   };
 
@@ -275,13 +404,28 @@ class TabelaAtendimentos extends React.Component {
           }}
         />
         {this.state.wait && <CircularProgress />}
-        {this.state.delDialogKey && (
+        {this.state.cancelarDialogOpen && (
           <HDialog
-            data={this.getAtendimentoSelecionado()}
-            open={this.state.delDialogOpen}
-            onClose={(e) => this.setState({ delDialogOpen: false })}
-            onCancel={(e) => this.setState({ delDialogOpen: false })}
-            onConfirm={this.dialog_onConfirm}
+            title="Cancelar atendimento"
+            contentRender={this.renderCancelamento}
+            open={this.state.cancelarDialogOpen}
+            onClose={(e) => this.setState({ cancelarDialogOpen: false })}
+            onPrimary={(e) => this.setState({ cancelarDialogOpen: false })}
+            primaryLabel="Não"
+            onSecondary={this.cancelarAtendimento}
+            secondaryLabel="Sim, quero cancelar este atendimento"
+          />
+        )}
+        {this.state.confirmarDialogOpen && (
+          <HDialog
+            title="Confirmar atendimento"
+            contentRender={this.renderConfirmacao}
+            open={this.state.confirmarDialogOpen}
+            onClose={(e) => this.setState({ confirmarDialogOpen: false })}
+            onSecondary={(e) => this.setState({ confirmarDialogOpen: false })}
+            secondaryLabel="Não"
+            onPrimary={this.confirmarAtendimento}
+            primaryLabel="Sim, quero confirmar este atendimento"
           />
         )}
         <HCustomTable

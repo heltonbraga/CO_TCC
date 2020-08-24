@@ -1,39 +1,85 @@
 import React from "react";
-import { Field, reduxForm } from "redux-form";
-import validate from "./validate";
+import { connect } from "react-redux";
+import { Field, reduxForm, formValueSelector } from "redux-form";
+import {validate} from "./validate";
 import renderField from "./renderField";
 import WizButtons from "./WizButtons";
+import PacienteSelect from "./PacienteSelect";
+import { MenuItem, Grid } from "@material-ui/core";
 
-const AtdPaciente = (props) => {
+let AtdPaciente = (props) => {
+  const convenios = [
+    "particular",
+    "uniodonto",
+    "amil",
+    "unimed",
+    "metlife",
+    "odonto system",
+    "camed",
+    "gamec",
+    "odontoprev",
+    "sulamerica",
+  ];
   const { onCancel, reset, handleSubmit } = props;
+  const [paciente, setPaciente] = React.useState(props.paciente);
 
-  React.useEffect(() => {
-    if (!props.pessoa) {
-      return;
-    }
-    props.change("email", props.pessoa.email);
-  }, [props.pessoa]);
+  const selPaciente = (pac) => {
+    props.change("paciente", pac);
+    setPaciente(pac);
+  };
 
   const off = props.readOnly ? "-" : "";
 
+  React.useEffect(() => {
+    if (!props.convenio) {
+      props.change("convenio", convenios[0]);
+    }
+  }, []);
+
   return (
     <form onSubmit={handleSubmit}>
-      <Field name="email" type={"text-email" + off} component={renderField} label="Email" />
+      <Grid container justify="center">
+        <PacienteSelect onSelect={selPaciente} selected={paciente} />
+        <Grid container justify="center">
+          <div className="divConvenios">
+            <Field name="convenio" type={"combo-" + off} component={renderField} label="Convênio">
+              {convenios.map((c, i) => (
+                <MenuItem key={i} value={c}>
+                  {c}
+                </MenuItem>
+              ))}
+            </Field>
+          </div>
+        </Grid>
+      </Grid>
       <WizButtons
         onCancel={(e) => {
           reset();
           onCancel();
         }}
         resto={props}
+        invalid={!props.paciente}
       />
     </form>
   );
 };
 
-export default reduxForm({
-  form: "wizard_atd", //                 <------ same form name
-  destroyOnUnmount: false, //        <------ preserve form data
-  forceUnregisterOnUnmount: true, // <------ unregister fields on unmount
+AtdPaciente = reduxForm({
+  form: "wizard_atd",
+  destroyOnUnmount: false,
+  forceUnregisterOnUnmount: true,
   validate,
   enableReinitialize: true,
 })(AtdPaciente);
+
+const selector = formValueSelector("wizard_atd");
+AtdPaciente = connect((state) => {
+  const paciente = selector(state, "paciente");
+  const convenio = selector(state, "convenio");
+  return {
+    paciente,
+    convenio,
+  };
+})(AtdPaciente);
+
+export default AtdPaciente;

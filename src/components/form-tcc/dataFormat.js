@@ -409,6 +409,39 @@ export const mapProcedimentoToExcel = (data) => {
   };
 };
 
+export const mapPacienteFormToRequest = (formData, idPaciente) => {
+  let val = formData;
+  let pess = {
+    id: idPaciente,
+    nome: val.nome,
+    nr_cpf: val.cpf.replace(/(\D)/g, ""),
+    dt_nascimento: val.nascimento,
+    email: val.email,
+    nr_tel: val.tel1,
+  };
+  let data = {
+    id: idPaciente,
+    pessoa: pess,
+  };
+  return data;
+};
+
+export const mapPacienteResponseToForm = (data) => {
+  if (!data) {
+    return undefined;
+  }
+  let d = data;
+  let paciente = {
+    id: d.id,
+    nome: d.Pessoa.nome,
+    cpf: formatar("0000000000" + d.Pessoa.nr_cpf, "cpf"),
+    nascimento: formatar(d.Pessoa.dt_nascimento, "dt"),
+    email: d.Pessoa.email,
+    tel1: formatar(d.Pessoa.nr_tel, "cell"),
+  };
+  return paciente;
+};
+
 export const mapAtendimentoToExcel = (data) => {
   let d = data;
   return {
@@ -416,16 +449,31 @@ export const mapAtendimentoToExcel = (data) => {
   };
 };
 
-export const mapAtendimentoFormToRequest = (formData, idProcedimento, idAdmin) => {
-  let d = formData;
+export const mapAtendimentoFormToRequest = (formData, idAtendimento, idUser) => {
+  console.log(formData.vaga);
   return {
-    x: "x",
+    id: idAtendimento,
+    user: idUser,
+    dm_situacao: formData.situacao,
+    dm_convenio: formData.convenio,
+    id_paciente: formData.paciente.id,
+    id_dentista: formData.vaga.dentista_id,
+    id_procedimento: formData.procedimento.id,
+    dt_horario: formData.vaga.horario,
   };
 };
 
 export const mapAtendimentoResponseToForm = (data) => {
-  let d = data;
+  if (!data) {
+    return undefined;
+  }
   return {
-    x: "x",
+    idAtendimento: data.id,
+    situacao: data.dm_situacao,
+    convenio: data.dm_convenio,
+    paciente: data.id_paciente,
+    dentista: data.id_dentista,
+    procedimento: data.id_procedimento,
+    vaga: data.dt_horario,
   };
 };
