@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { DropdownItem, DropdownToggle, DropdownMenu, Dropdown } from "reactstrap";
 import { menuSelect, setTela } from "../actions";
 import { CircularProgress } from "@material-ui/core";
+import MenuIcon from "@material-ui/icons/Menu";
 
 class Menu extends React.Component {
   state = { menuAberto: true };
@@ -14,8 +15,8 @@ class Menu extends React.Component {
   render() {
     return (
       <Dropdown isOpen={this.state.menuAberto} toggle={this.toggleMenu}>
-        <DropdownToggle color="primary" caret>
-          Menu
+        <DropdownToggle color="primary">
+          <MenuIcon />
         </DropdownToggle>
         <DropdownMenu right>
           <DropdownItem header style={{ textAlign: "center" }}>

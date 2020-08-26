@@ -21,6 +21,10 @@
   text-align: center;
 }
 
+.basicDiv {
+  width: 100%;
+}
+
 .desk {
   display: inline-block;
 }
@@ -45,13 +49,24 @@
 }
 
 .FormDateField {
-  width: 300px;
-  margin-left: 0;
+  width: 280px;
+  max-width: 90%;
+}
+
+.divDataVaga {
+  padding-top: 15px;
+  margin-left: 0px;
+  padding-left: 0px;
+  text-align: left;
+  width: 500px;
+  max-width: 90%;
 }
 
 .formDialog {
-  padding: 20px;
-  margin: 10px;
+  width: 100%;
+  max-width: 500px;
+  padding: 0px;
+  margin: 0px;
   text-align: center;
   align-content: center;
   align-items: center;
@@ -66,8 +81,6 @@
 
 .filtroAtd {
   display: inline-flex;
-  vertical-align: middle;
-  margin-left: 30%;
 }
 
 .plusDiv {
@@ -75,35 +88,46 @@
   margin-left: 10px;
 }
 
+.pacAutocomplete {
+  width: 450px;
+  max-width: 80%;
+  margin-top: 30px;
+}
+
 .divConvenios {
-  min-width: 200px;
-  margin-top: 20px;
-  margin-left: 10%;
+  background-color: lightblue;
   width: 100%;
+  margin: 0px auto;
 }
 
 .divSpacer {
   display: inline-flex;
   height: 25px;
+  min-height: 60px;
 }
 
 .WizForm {
-  padding: 10px;
-  margin: 10px;
+  margin: 0px auto;
+  padding-top: 10px;
   width: 100%;
+  max-width: 800px;
   align-content: center;
   align-items: center;
+  align-self: center;
 }
 
 .WizFormControl {
   display: flex;
   padding: 10px;
   margin-left: 20px;
-  width: 57%;
+  width: 60%;
 }
 
 .ListaDisp {
-  width: 60%;
+  padding: 10px;
+  margin-left: 20px;
+  width: 100%;
+  max-width: 480px;
 }
 
 .ListaDispItemText {
@@ -195,33 +219,25 @@
   .FormTextField {
     width: 90%;
   }
+
+  .WizFormControl {
+    display: flex;
+    padding: 10px;
+    margin-left: 20px;
+    width: 90%;
+  }
 }
 
 .dayDetail {
   width: 500px;
-  min-width: 300px;
-}
-
-.dayTitle {
+  max-width: 70%;
+  margin: 0 auto;
   background-color: rgb(137, 210, 252);
-  text-align: center;
-  font-size: large;
 }
 
-.horasDia {
+.hourPanel {
   width: 100%;
-  display: flex;
-  border: 1px solid #aaa;
-}
-
-.vagaHora {
-  background-color: lightgray;
-  padding: 5px;
-  width: 50px;
-}
-
-.vagaLista {
-  display: flex;
+  max-width: 800px;
 }
 
 .tagDentista {
@@ -233,6 +249,11 @@
   text-align: center;
   text-decoration: none;
   margin-left: 3px;
+}
+
+.divCal {
+  width: 100%;
+  max-width: 800px;
 }
 
 #calendar {
@@ -259,6 +280,10 @@
 
 #calendar .weekdays {
   background: rgb(137, 210, 252);
+}
+
+.weekday {
+  min-width: 50px;
 }
 
 #calendar .weekdays th {
@@ -288,7 +313,7 @@
 }
 
 .dayOff {
-  background-color: darkgrey;
+  background-color: #ccc;
   color: dimgrey;
 }
 

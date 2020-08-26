@@ -3,18 +3,14 @@ import { connect } from "react-redux";
 import { reset } from "redux-form";
 import { getBancos, getProcedimentos, createDentista, getDentista, updateDentista } from "../Api";
 import { setMessage, setTela } from "../../actions";
-import { CircularProgress, Dialog } from "@material-ui/core";
+import { CircularProgress, Dialog, Typography } from "@material-ui/core";
 import Identificacao from "../form-tcc/Identificacao";
 import Contato from "../form-tcc/Contato";
 import Endereco from "../form-tcc/Endereco";
 import DadosBancarios from "../form-tcc/DadosBancarios";
 import DadosDentista from "../form-tcc/DadosDentista";
 import ProcDispDentista from "../form-tcc/ProcDispDentista";
-import {
-  formatar,
-  mapDentistaFormToRequest,
-  mapDentistaResponseToForm,
-} from "../form-tcc/dataFormat";
+import { mapDentistaFormToRequest, mapDentistaResponseToForm } from "../form-tcc/dataFormat";
 
 class FormDentista extends React.Component {
   state = { page: 0, wait: false };
@@ -91,7 +87,9 @@ class FormDentista extends React.Component {
     const dentData = mapDentistaResponseToForm(this.state.dentista);
     return (
       <div className="WizForm">
-        <h2>Cadastro de dentista</h2>
+        <Typography style={{ textAlign: "center" }} variant="h5" component="div">
+          Cadastro de dentista
+        </Typography>
         <div> </div>
         {page === 0 && <CircularProgress />}
         <Dialog

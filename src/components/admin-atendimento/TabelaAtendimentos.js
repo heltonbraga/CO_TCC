@@ -8,6 +8,7 @@ import {
   MenuItem,
   InputLabel,
   Button,
+  Popper,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
@@ -18,7 +19,7 @@ import {
 } from "../Api";
 import HCustomTable from "../HDataTable/HCustomTable";
 import { setMessage, setTela } from "../../actions";
-import { mapAtendimentoToExcel, formatar } from "../form-tcc/dataFormat";
+import { mapAtendimentoToExcel } from "../form-tcc/dataFormat";
 import HDialog from "../HDataTable/HDialog";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
@@ -38,6 +39,7 @@ class TabelaAtendimentos extends React.Component {
     dia: moment().format("YYYY-MM-DD"),
     dentista: 0,
     wait: false,
+    compacto: window.innerWidth <= 500,
   };
 
   componentDidMount() {
@@ -84,18 +86,29 @@ class TabelaAtendimentos extends React.Component {
   };
 
   getAtendimentoHeader = () => {
-    return [
-      {
-        id: "horario",
-        numeric: false,
-        disablePadding: false,
-        label: "Horário",
-        style: { width: 80 },
-      },
-      { id: "paciente", numeric: false, disablePadding: false, label: "Paciente" },
-      { id: "procedimento", numeric: false, disablePadding: false, label: "Procedimento" },
-      { id: "situacao", numeric: false, disablePadding: false, label: "Situação" },
-    ];
+    return this.state.compacto
+      ? [
+          {
+            id: "horario",
+            numeric: false,
+            disablePadding: false,
+            label: "Horário",
+            style: { width: 80 },
+          },
+          { id: "situacao", numeric: false, disablePadding: false, label: "Situação" },
+        ]
+      : [
+          {
+            id: "horario",
+            numeric: false,
+            disablePadding: false,
+            label: "Horário",
+            style: { width: 80 },
+          },
+          { id: "paciente", numeric: false, disablePadding: false, label: "Paciente" },
+          { id: "procedimento", numeric: false, disablePadding: false, label: "Procedimento" },
+          { id: "situacao", numeric: false, disablePadding: false, label: "Situação" },
+        ];
   };
 
   getTableActions = (entidade) => {
@@ -131,12 +144,23 @@ class TabelaAtendimentos extends React.Component {
             : d.dm_situacao === "confirmado"
             ? ["CONFIRMAR"]
             : [],
-        view: [
-          { value: moment(d.dt_horario).format("HH:mm"), align: "left" },
-          { value: d.Paciente.Pessoa.nome, align: "left" },
-          { value: d.Procedimento.nome, align: "left" },
-          { value: <span className={"sit_" + d.dm_situacao}>{d.dm_situacao}</span>, align: "left" },
-        ],
+        view: this.state.compacto
+          ? [
+              { value: moment(d.dt_horario).format("HH:mm"), align: "left" },
+              {
+                value: <span className={"sit_" + d.dm_situacao}>{d.dm_situacao}</span>,
+                align: "left",
+              },
+            ]
+          : [
+              { value: moment(d.dt_horario).format("HH:mm"), align: "left" },
+              { value: d.Paciente.Pessoa.nome, align: "left" },
+              { value: d.Procedimento.nome, align: "left" },
+              {
+                value: <span className={"sit_" + d.dm_situacao}>{d.dm_situacao}</span>,
+                align: "left",
+              },
+            ],
       };
     });
     return {
@@ -365,7 +389,7 @@ class TabelaAtendimentos extends React.Component {
           id="comboDentista"
           options={this.state.dentistas}
           getOptionLabel={(option) => option.Pessoa.nome}
-          style={{ width: 200 }}
+          style={{ width: 200, maxWidth: "45%" }}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -374,13 +398,16 @@ class TabelaAtendimentos extends React.Component {
               placeholder="todos dentistas"
             />
           )}
+          PopperComponent={(params) => (
+            <Popper {...params} style={{ width: 400, maxWidth: "100%" }} placement="bottom-start" />
+          )}
           onChange={(e, val) => this.onChangeDentista(val)}
         />
         <TextField
           type="date"
           label="Data"
           value={this.state.dia}
-          style={{ width: 150 }}
+          style={{ width: 150, maxWidth: "45%" }}
           onChange={this.onChangeData}
           InputLabelProps={{
             shrink: true,

@@ -1,8 +1,8 @@
 import React from "react";
 import { CircularProgress, Dialog, Slide } from "@material-ui/core";
-import { getDentista } from "../Api";
-import { mapDentistaToPdf } from "../form-tcc/dataFormat";
-import { PDFDownloadLink, Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
+import { getPaciente } from "../Api";
+import { mapPacienteToPdf } from "../form-tcc/dataFormat";
+import { PDFDownloadLink, Page, Document, StyleSheet } from "@react-pdf/renderer";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -21,25 +21,26 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 // Create Document Component
-export default function PdfDentista(props) {
+export default function PdfPaciente(props) {
   const [data, setData] = React.useState(null);
   const [erro, setErro] = React.useState(null);
   const [open, setOpen] = React.useState(true);
 
   React.useEffect(() => {
-    getDentista(props.idDentista, props.idUser, props.setToken, gerarPdf, showError);
+    getPaciente(props.idPaciente, props.setToken, gerarPdf, showError);
     setOpen(true);
-  }, [props.idDentista]);
+  }, [props.idPaciente]);
 
   const showError = (err) => {
     setErro("Falha ao buscar registro");
   };
 
   const gerarPdf = (res) => {
+    console.log(res);
     setData(
       <Document>
         <Page size="A4" style={styles.page} wrap>
-          {mapDentistaToPdf(res.data)}
+          {mapPacienteToPdf(res.data)}
         </Page>
       </Document>
     );
@@ -58,7 +59,7 @@ export default function PdfDentista(props) {
       {data === null && erro === null && <CircularProgress />}
       {erro !== null && <span>{erro}</span>}
       {data !== null && (
-        <PDFDownloadLink document={data} fileName={"dentista_" + props.idDentista + ".pdf"}>
+        <PDFDownloadLink document={data} fileName={"paciente_" + props.idPaciente + ".pdf"}>
           {({ blob, url, loading, error }) => (loading ? "Loading document..." : "Download now!")}
         </PDFDownloadLink>
       )}

@@ -17,13 +17,16 @@ export default class HTableHead extends React.Component {
               sortDirection={this.props.orderBy === headCell.id ? this.props.ascOrder : false}
               style={headCell.style}
             >
-              <TableSortLabel
-                active={this.props.orderBy === headCell.id}
-                direction={this.props.orderBy === headCell.id ? this.props.ascOrder : "asc"}
-                onClick={(event) => this.props.onSort(event, headCell.id)}
-              >
-                {headCell.label}
-              </TableSortLabel>
+              {this.props.orderBy && (
+                <TableSortLabel
+                  active={this.props.orderBy === headCell.id}
+                  direction={this.props.orderBy === headCell.id ? this.props.ascOrder : "asc"}
+                  onClick={(event) => this.props.onSort(event, headCell.id)}
+                >
+                  {headCell.label}
+                </TableSortLabel>
+              )}
+              {!this.props.orderBy && headCell.label}
             </TableCell>
           ))}
           {this.props.actions ? <TableCell align="center">Ações</TableCell> : null}

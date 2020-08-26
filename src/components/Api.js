@@ -108,13 +108,10 @@ export const updateDentista = (data, token, onSuccess, onError, extra) => {
 
 export const deleteDentista = (data, token, onSuccess, onError, extra) => {
   axios
-    .delete(
-      "dentistas",
-      { data: data },
-      {
-        headers: { Authorization: "Bearer " + token },
-      }
-    )
+    .delete("dentistas", {
+      headers: { Authorization: "Bearer " + token },
+      data: data,
+    })
     .then(
       (res) => onSuccess(res, extra),
       (err) => onError(digerirErro(err))
@@ -191,12 +188,10 @@ export const updateAuxiliar = (data, token, onSuccess, onError, extra) => {
 export const deleteAuxiliar = (data, token, onSuccess, onError, extra) => {
   axios
     .delete(
-      "auxiliares",
-      { data: data },
-      {
+      "auxiliares",{
         headers: { Authorization: "Bearer " + token },
-      }
-    )
+        data: data,
+      })
     .then(
       (res) => onSuccess(res, extra),
       (err) => onError(digerirErro(err))
@@ -273,21 +268,39 @@ export const updateProcedimento = (data, token, onSuccess, onError, extra) => {
 export const deleteProcedimento = (data, token, onSuccess, onError, extra) => {
   axios
     .delete(
-      "procedimentos",
-      { data: data },
-      {
+      "procedimentos",{
         headers: { Authorization: "Bearer " + token },
-      }
-    )
+        data: data,
+      })
     .then(
       (res) => onSuccess(res, extra),
       (err) => onError(digerirErro(err))
     );
 };
 
-export const getAllPacientes = (token, onSuccess, onError) => {
+export const getAllPacientes = (page, pageSize, order, token, onSuccess, onError, admin) => {
   axios
     .get("pacientes", {
+      params: {
+        page: page,
+        pagesize: pageSize,
+        order: order,
+        admin: admin,
+      },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(
+      (res) => onSuccess(res),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const getPacientesByNome = (nome, token, onSuccess, onError) => {
+  axios
+    .get("pacientes/nome", {
+      params: {
+        nome: nome,
+      },
       headers: { Authorization: "Bearer " + token },
     })
     .then(
@@ -323,6 +336,19 @@ export const updatePaciente = (data, token, onSuccess, onError, extra) => {
     .patch("pacientes", data, {
       headers: { Authorization: "Bearer " + token },
     })
+    .then(
+      (res) => onSuccess(res, extra),
+      (err) => onError(digerirErro(err))
+    );
+};
+
+export const deletePaciente = (data, token, onSuccess, onError, extra) => {
+  axios
+    .delete(
+      "pacientes",{
+        headers: { Authorization: "Bearer " + token },
+        data: data,
+      })
     .then(
       (res) => onSuccess(res, extra),
       (err) => onError(digerirErro(err))

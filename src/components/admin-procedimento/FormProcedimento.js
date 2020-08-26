@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { reset } from "redux-form";
 import { createProcedimento, getProcedimento, updateProcedimento } from "../Api";
 import { setMessage, setTela } from "../../actions";
-import { CircularProgress, Dialog } from "@material-ui/core";
+import { CircularProgress, Dialog, Typography } from "@material-ui/core";
 import Procedimento from "../form-tcc/Procedimento";
 import {
   mapProcedimentoFormToRequest,
@@ -75,7 +75,9 @@ class FormProcedimento extends React.Component {
     const dentData = mapProcedimentoResponseToForm(this.state.procedimento);
     return (
       <div className="WizForm">
-        <h2>Cadastro de procedimento</h2>
+      <Typography style={{ textAlign: "center" }} variant="h5" component="div">
+        Cadastro de procedimento
+      </Typography>
         <div> </div>
         {page === 0 && <CircularProgress />}
         <Dialog

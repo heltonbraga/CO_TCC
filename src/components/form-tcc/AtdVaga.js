@@ -1,25 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm, formValueSelector } from "redux-form";
-import {
-  MenuItem,
-  TextField,
-  Checkbox,
-  ListItemText,
-  ListItem,
-  ListSubheader,
-  FormHelperText,
-  Select,
-  Input,
-  InputLabel,
-  FormControl,
-  FormControlLabel,
-  IconButton,
-  List,
-  Grid,
-  Tooltip,
-  Button,
-} from "@material-ui/core";
+import { MenuItem, TextField, ListItemText, Grid, Button } from "@material-ui/core";
 import moment from "moment";
 import { getVagas } from "../Api";
 import { validate } from "./validate";
@@ -33,6 +15,7 @@ let AtdVaga = (props) => {
   const off = props.readOnly ? "-" : "";
   const [dia, setDia] = React.useState(moment().format("YYYY-MM-DD"));
   const [dialog, setDialog] = React.useState(false);
+  const [ignorar, setIgnorar] = React.useState(false);
   const [vagas, setVagas] = React.useState([]);
 
   let listaDentistas = props.dentistas ? props.dentistas : [];
@@ -47,7 +30,11 @@ let AtdVaga = (props) => {
   }, []);
 
   React.useEffect(() => {
-    reloadVagas();
+    if (!ignorar) {
+      console.log("reloading...");
+      reloadVagas();
+    }
+    setIgnorar(false);
   }, [props.procedimento, props.dentista]);
 
   const reloadVagas = (outroDia = dia) => {
@@ -83,18 +70,21 @@ let AtdVaga = (props) => {
 
   const onDialogResult = (result) => {
     if (result) {
+      setIgnorar(true);
+      console.log(result);
       let id = parseInt(result.dentista);
       let dentista = props.dentistas.filter((d) => d.id === id)[0];
+      let vaga = {
+        dentista_id: id,
+        nr_cro: dentista.nr_cro,
+        nome: dentista.Pessoa.nome,
+        procedimento_id: props.procedimento.id,
+        horario: result.opcao.horario,
+      };
+      console.log(vaga);
+      setVagas([vaga]);
       setDia(result.opcao.horario.slice(0, 10));
-      setVagas([
-        {
-          dentista_id: id,
-          nr_cro: dentista.nr_cro,
-          nome: dentista.Pessoa.nome,
-          procedimento_id: props.procedimento.id,
-          horario: result.opcao.horario,
-        },
-      ]);
+      props.change("vaga", vaga);
       props.change("dentista", dentista);
     }
     setDialog(false);
@@ -132,7 +122,7 @@ let AtdVaga = (props) => {
           </Field>
         </Grid>
         <Grid container justify="center">
-          <div className="WizFormControl">
+          <div className="divDataVaga">
             <TextField
               id="dia"
               label="Dia"
@@ -159,14 +149,16 @@ let AtdVaga = (props) => {
           </Field>
         </Grid>
         <Grid container justify="center">
-          <Button
-            disabled={!props.procedimento}
-            variant="contained"
-            color="default"
-            onClick={(e) => setDialog(true)}
-          >
-            Buscar mais horários
-          </Button>
+          <div style={{ paddingTop: 15 }}>
+            <Button
+              disabled={!props.procedimento}
+              variant="contained"
+              color="default"
+              onClick={(e) => setDialog(true)}
+            >
+              Buscar mais horários
+            </Button>
+          </div>
           {dialog && (
             <DialogVaga
               callback={onDialogResult}

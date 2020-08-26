@@ -5,6 +5,7 @@ export const opcoesMenuReducer = (perfil) => {
   return [
     { perfil: "administrador", label: "Dentistas", acao: "adminDent" },
     { perfil: "administrador", label: "Auxiliares", acao: "adminAux" },
+    { perfil: "administrador", label: "Pacientes", acao: "adminPac" },
     { perfil: "administrador", label: "Procedimentos", acao: "adminProc" },
     { perfil: "administrador", label: "Atendimentos", acao: "adminAtend" },
     { perfil: "administrador", label: "Relatório", acao: "adminRel" },

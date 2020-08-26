@@ -4,6 +4,8 @@ import HTableToolbar from "./HTableToolbar";
 import HTableRow from "./HTableRow";
 import HTableHead from "./HTableHead";
 
+import "./style.css";
+
 export default class HCustomTable extends React.Component {
   render() {
     if (!this.props.data) {

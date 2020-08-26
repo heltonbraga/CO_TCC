@@ -20,6 +20,7 @@ class TabelaProcedimentos extends React.Component {
     delDialogKey: null,
     pdfDialogKey: null,
     wait: false,
+    compacto: window.innerWidth <= 500,
   };
 
   componentDidMount() {
@@ -57,12 +58,28 @@ class TabelaProcedimentos extends React.Component {
   };
 
   getProcedimentoHeader = () => {
-    return [
-      { id: "id", numeric: false, disablePadding: false, label: "ID", style: { width: 80 } },
-      { id: "nome", numeric: false, disablePadding: false, label: "Nome" },
-      { id: "dm_tipo", numeric: false, disablePadding: false, label: "Tipo" },
-      { id: "duracao", numeric: false, disablePadding: false, label: "Duração" },
-    ];
+    return this.state.compacto
+      ? [
+          {
+            id: "nome",
+            numeric: false,
+            disablePadding: false,
+            label: "Nome",
+            style: { width: "50%", maxWidth: 200 },
+          },
+          { id: "duracao", numeric: true, disablePadding: false, label: "Duração" },
+        ]
+      : [
+          {
+            id: "nome",
+            numeric: false,
+            disablePadding: false,
+            label: "Nome",
+            style: { width: "50%", maxWidth: 200 },
+          },
+          { id: "dm_tipo", numeric: false, disablePadding: false, label: "Tipo" },
+          { id: "duracao", numeric: true, disablePadding: false, label: "Duração" },
+        ];
   };
 
   getTableActions = (entidade) => {
@@ -87,12 +104,16 @@ class TabelaProcedimentos extends React.Component {
     const rows = den.registros.map((d) => {
       return {
         key: d.id,
-        view: [
-          { value: d.id, align: "left" },
-          { value: d.nome, align: "left" },
-          { value: d.dm_tipo, align: "left" },
-          { value: d.duracao, align: "left" },
-        ],
+        view: this.state.compacto
+          ? [
+              { value: d.nome, align: "left" },
+              { value: d.duracao, align: "right" },
+            ]
+          : [
+              { value: d.nome, align: "left" },
+              { value: d.dm_tipo, align: "left" },
+              { value: d.duracao, align: "right" },
+            ],
       };
     });
     return {
@@ -195,7 +216,6 @@ class TabelaProcedimentos extends React.Component {
     let data = res.data.registros.map((d) => {
       return mapProcedimentoToExcel(d);
     });
-    console.log(data);
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });

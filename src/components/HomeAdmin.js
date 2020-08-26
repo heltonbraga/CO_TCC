@@ -6,6 +6,8 @@ import TabelaDentistas from "./admin-dentista/TabelaDentistas";
 import FormDentista from "./admin-dentista/FormDentista";
 import TabelaAuxiliares from "./admin-auxiliar/TabelaAuxiliares";
 import FormAuxiliar from "./admin-auxiliar/FormAuxiliar";
+import TabelaPacientes from "./paciente/TabelaPacientes";
+import FormPaciente from "./paciente/FormPaciente";
 import TabelaProcedimentos from "./admin-procedimento/TabelaProcedimentos";
 import FormProcedimento from "./admin-procedimento/FormProcedimento";
 import TabelaAtendimentos from "./admin-atendimento/TabelaAtendimentos";
@@ -20,18 +22,18 @@ class HomeAdmin extends React.Component {
           return <TabelaDentistas />;
         case "adminAux":
           return <TabelaAuxiliares />;
+        case "adminPac":
+          return <TabelaPacientes />;
         case "adminProc":
           return <TabelaProcedimentos />;
         case "adminAtend":
           return <TabelaAtendimentos />;
         default:
           return (
-            <div>
+            <div className="basicDiv">
               <img
                 style={{
-                  position: "absolute",
-                  top: "30%",
-                  left: "40%",
+                  margin: "0px auto",
                 }}
                 alt="logo"
                 src={logo}
@@ -51,6 +53,8 @@ class HomeAdmin extends React.Component {
         return <FormDentista idDentista={id} readOnly={acao === "VIEW"} />;
       case "AUXILIAR":
         return <FormAuxiliar idAuxiliar={id} readOnly={acao === "VIEW"} />;
+      case "PACIENTE":
+        return <FormPaciente idPaciente={id} readOnly={acao === "VIEW"} />;
       case "PROCEDIMENTO":
         return <FormProcedimento idProcedimento={id} readOnly={acao === "VIEW"} />;
       case "ATENDIMENTO":
@@ -65,7 +69,9 @@ class HomeAdmin extends React.Component {
     return rota !== "administrador" ? (
       <Redirect to={"/" + rota} />
     ) : (
-      <div>{this.renderInterno(this.props.opcaoSelecionadaMenu, this.props.tela)}</div>
+      <div className="basicDiv">
+        {this.renderInterno(this.props.opcaoSelecionadaMenu, this.props.tela)}
+      </div>
     );
   }
 }

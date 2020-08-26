@@ -35,7 +35,19 @@ function App(props) {
   }
 
   if (isLoading) {
-    return <CircularProgress />;
+    return (
+      <div
+        style={{
+          width: "100%",
+        }}
+      >
+        <CircularProgress
+          style={{
+            margin: "0px auto",
+          }}
+        />
+      </div>
+    );
   }
 
   const logoutWithRedirect = () =>

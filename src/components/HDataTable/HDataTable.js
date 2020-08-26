@@ -11,6 +11,8 @@ import HTableToolbar from "./HTableToolbar";
 import HTableRow from "./HTableRow";
 import HTableHead from "./HTableHead";
 
+import "./style.css";
+
 export default class HDataTable extends React.Component {
   render() {
     const data = this.props.data;

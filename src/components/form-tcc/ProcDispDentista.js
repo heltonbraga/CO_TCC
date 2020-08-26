@@ -19,7 +19,7 @@ import {
 } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
-import {validate} from "./validate";
+import { validate } from "./validate";
 import renderField from "./renderField";
 import WizButtons from "./WizButtons";
 
@@ -184,15 +184,17 @@ const ProcDispDentista = (props) => {
                     className="ListaDispItemText"
                     primary={d.dia_str + " de " + d.inicio_str + " às " + d.fim_str + " "}
                   />
-                  <Tooltip title="excluir">
-                    <IconButton
-                      tooltip="excluir"
-                      onClick={(e) => delDisp(e, d)}
-                      disabled={props.readOnly}
-                    >
-                      <DeleteIcon color={props.readOnly ? "disabled" : "secondary"} />
-                    </IconButton>
-                  </Tooltip>
+                  {!props.readOnly && (
+                    <Tooltip title="excluir">
+                      <IconButton
+                        tooltip="excluir"
+                        onClick={(e) => delDisp(e, d)}
+                        disabled={props.readOnly}
+                      >
+                        <DeleteIcon color={"secondary"} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </ListItem>
               ))}
             </List>

@@ -2,7 +2,7 @@ import React from "react";
 import { CircularProgress, Dialog, Slide } from "@material-ui/core";
 import { getAuxiliar } from "../Api";
 import { mapAuxiliarToPdf } from "../form-tcc/dataFormat";
-import { PDFDownloadLink, Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
+import { PDFDownloadLink, Page, Document, StyleSheet } from "@react-pdf/renderer";
 
 // Create styles
 const styles = StyleSheet.create({

@@ -59,7 +59,7 @@ class TabelaDentistas extends React.Component {
 
   getDentistaHeader = () => {
     return [
-      { id: "nr_cro", numeric: false, disablePadding: false, label: "CRO", style: { width: 80 } },
+      { id: "nr_cro", numeric: false, disablePadding: false, label: "CRO", style: { width: 50, maxWidth: "10%" } },
       { id: "nome", numeric: false, disablePadding: false, label: "Nome" },
     ];
   };

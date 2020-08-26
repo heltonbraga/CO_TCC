@@ -8,7 +8,7 @@ import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import InputBase from "@material-ui/core/InputBase";
 import { fade, makeStyles } from "@material-ui/core/styles";
-import { Tooltip } from "@material-ui/core";
+import { Tooltip, Grid } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,7 +42,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0, 2),
     height: "100%",
     position: "absolute",
-    //pointerEvents: "none",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -72,49 +71,54 @@ function onSubmit(e, props, searchKey) {
 
 export default function HTableToolbar(props) {
   const [searchKey, setSearchKey] = useState("");
-  const classes = useStyles();
   return (
     <Toolbar>
-      <Typography className="" variant="h6" id="tableTitle" component="div">
-        {props.title}
-      </Typography>
-      {!props.hasCenterPiece && (
-        <div className={classes.search}>
-          <Form onSubmit={(e) => onSubmit(e, props, searchKey)}>
-            <InputBase
-              placeholder={props.searchPlaceHolder}
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ "aria-label": "search" }}
-              value={searchKey}
-              onChange={(e) => setSearchKey(e.target.value)}
+      <Grid container spacing={0}>
+        <Grid item xs={10}>
+          <Typography style={{ textAlign: "left" }} variant="h6" component="div">
+            {props.title}
+          </Typography>
+        </Grid>
+        <Grid container item xs={2}>
+          <Tooltip title="novo">
+            <AddCircleOutlineIcon
+              style={{ marginTop: "4px" }}
+              color="primary"
+              onClick={props.onCreateRegister}
             />
-            {searchKey !== "" && (
-              <ClearIcon
-                color="secondary"
-                onClick={(e) => {
-                  props.onSearchCancel(e);
-                  setSearchKey("");
-                }}
-              />
-            )}
-            {searchKey !== "" && (
-              <SearchIcon color="primary" onClick={(e) => onSubmit(e, props, searchKey)} />
-            )}
-          </Form>
-        </div>
-      )}
-      <div>{props.hasCenterPiece && props.centerPiece()}</div>
-      <div style={{ marginLeft: "auto" }}>
-        <Tooltip title="novo">
-          <AddCircleOutlineIcon color="primary" onClick={props.onCreateRegister} />
-        </Tooltip>{" "}
-        <Tooltip title="excel">
-          <SaveAltIcon onClick={props.onExport} />
-        </Tooltip>
-      </div>
+          </Tooltip>{" "}
+          <Tooltip title="excel">
+            <SaveAltIcon style={{ marginTop: "4px" }} onClick={props.onExport} />
+          </Tooltip>
+        </Grid>
+        <Grid container item xs={12} spacing={0}>
+          {!props.hasCenterPiece && (
+            <div>
+              <Form onSubmit={(e) => onSubmit(e, props, searchKey)}>
+                <InputBase
+                  placeholder={props.searchPlaceHolder}
+                  inputProps={{ "aria-label": "search" }}
+                  value={searchKey}
+                  onChange={(e) => setSearchKey(e.target.value)}
+                />
+                {searchKey !== "" && (
+                  <ClearIcon
+                    color="secondary"
+                    onClick={(e) => {
+                      props.onSearchCancel(e);
+                      setSearchKey("");
+                    }}
+                  />
+                )}
+                {searchKey !== "" && (
+                  <SearchIcon color="primary" onClick={(e) => onSubmit(e, props, searchKey)} />
+                )}
+              </Form>
+            </div>
+          )}
+          <div>{props.hasCenterPiece && props.centerPiece()}</div>
+        </Grid>
+      </Grid>
     </Toolbar>
   );
 }

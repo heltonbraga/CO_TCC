@@ -3,16 +3,13 @@ import { connect } from "react-redux";
 import { reset } from "redux-form";
 import { getBancos, createAuxiliar, getAuxiliar, updateAuxiliar } from "../Api";
 import { setMessage, setTela } from "../../actions";
-import { CircularProgress, Dialog } from "@material-ui/core";
+import { CircularProgress, Dialog, Typography } from "@material-ui/core";
 import Identificacao from "../form-tcc/Identificacao";
 import Contato from "../form-tcc/Contato";
 import Endereco from "../form-tcc/Endereco";
 import DadosBancarios from "../form-tcc/DadosBancarios";
 import DadosAuxiliar from "../form-tcc/DadosAuxiliar";
-import {
-  mapAuxiliarFormToRequest,
-  mapAuxiliarResponseToForm,
-} from "../form-tcc/dataFormat";
+import { mapAuxiliarFormToRequest, mapAuxiliarResponseToForm } from "../form-tcc/dataFormat";
 
 class FormAuxiliar extends React.Component {
   state = { page: 0, wait: false };
@@ -84,7 +81,9 @@ class FormAuxiliar extends React.Component {
     const dentData = mapAuxiliarResponseToForm(this.state.auxiliar);
     return (
       <div className="WizForm">
-        <h2>Cadastro de auxiliar</h2>
+        <Typography style={{ textAlign: "center" }} variant="h5" component="div">
+          Cadastro de auxiliar
+        </Typography>
         <div> </div>
         {page === 0 && <CircularProgress />}
         <Dialog
@@ -152,7 +151,8 @@ class FormAuxiliar extends React.Component {
                     dispatch(reset("wizard"));
                     this.props.setTela("");
                   }
-                : this.onSubmit}
+                : this.onSubmit
+            }
             onCancel={this.onCancel}
             stepNumber={5}
             stepCount={stepCount}

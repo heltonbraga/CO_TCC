@@ -5,13 +5,11 @@ import {
   marcarAtendimento,
   remarcarAtendimento,
   getAtendimento,
-  confirmarAtendimento,
-  cancelarAtendimento,
   getProcedimentos,
   getAllDentistas,
 } from "../Api";
 import { setMessage, setTela } from "../../actions";
-import { CircularProgress, Dialog } from "@material-ui/core";
+import { CircularProgress, Dialog, Typography } from "@material-ui/core";
 import AtdPaciente from "../form-tcc/AtdPaciente";
 import AtdVaga from "../form-tcc/AtdVaga";
 import { mapAtendimentoFormToRequest, mapAtendimentoResponseToForm } from "../form-tcc/dataFormat";
@@ -85,7 +83,11 @@ class FormAtendimento extends React.Component {
 
   onSubmit = (values, dispatch) => {
     console.log(values);
-    const data = mapAtendimentoFormToRequest(values, this.props.idAtendimento, this.props.perfil.id);
+    const data = mapAtendimentoFormToRequest(
+      values,
+      this.props.idAtendimento,
+      this.props.perfil.id
+    );
     console.log(data);
     this.props.idAtendimento
       ? remarcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch)
@@ -107,9 +109,17 @@ class FormAtendimento extends React.Component {
     const dentData = mapAtendimentoResponseToForm(this.state.atendimento);
     return (
       <div className="WizForm">
-        <h2>Marcação de atendimento</h2>
+        <Typography style={{ textAlign: "center" }} variant="h5" component="div">
+          Marcação de atendimento
+        </Typography>
         <div> </div>
-        {page === 0 && <CircularProgress />}
+        {page === 0 && (
+          <CircularProgress
+            style={{
+              margin: "0px auto",
+            }}
+          />
+        )}
         <Dialog
           fullScreen
           open={this.state.wait}
@@ -120,7 +130,13 @@ class FormAtendimento extends React.Component {
             },
           }}
         />
-        {this.state.wait && <CircularProgress />}
+        {this.state.wait && (
+          <CircularProgress
+            style={{
+              margin: "0px auto",
+            }}
+          />
+        )}
         {page === 1 && (
           <AtdPaciente
             previousPage={this.previousPage}

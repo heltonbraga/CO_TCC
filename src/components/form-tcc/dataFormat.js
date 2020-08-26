@@ -421,6 +421,7 @@ export const mapPacienteFormToRequest = (formData, idPaciente) => {
   };
   let data = {
     id: idPaciente,
+    dm_situacao: val.situacao,
     pessoa: pess,
   };
   return data;
@@ -438,8 +439,54 @@ export const mapPacienteResponseToForm = (data) => {
     nascimento: formatar(d.Pessoa.dt_nascimento, "dt"),
     email: d.Pessoa.email,
     tel1: formatar(d.Pessoa.nr_tel, "cell"),
+    situacao: d.dm_situacao,
   };
   return paciente;
+};
+
+export const mapPacienteToExcel = (data) => {
+  let d = data;
+  let paciente = {
+    id: d.id,
+    nome: d.Pessoa.nome,
+    cpf: formatar("0000000000" + d.Pessoa.nr_cpf, "cpf"),
+    nascimento: formatar(d.Pessoa.dt_nascimento, "dt"),
+    email: d.Pessoa.email,
+    celular: formatar(d.Pessoa.nr_tel, "cell"),
+    situacao: d.dm_situacao,
+  };
+  return paciente;
+};
+
+export const mapPacienteToPdf = (data) => {
+  const mapped = mapPacienteToExcel(data);
+  return (
+    <View
+      style={{
+        margin: 20,
+        padding: 2,
+        flexGrow: 1,
+      }}
+    >
+      <Text
+        style={{
+          margin: 12,
+          fontSize: 30,
+          textAlign: "center",
+          fontStyle: "italic",
+        }}
+      >
+        CO-TCC - Paciente
+      </Text>
+      <Text>Nome: {mapped.nome}</Text>
+      <Text>CPF: {mapped.cpf}</Text>
+      <Text>Sexo: {mapped.sexo}</Text>
+      <Text>Data de nascimento: {mapped.nascimento}</Text>
+      <Text>Email: {mapped.email}</Text>
+      <Text>Celular: {mapped.celular}</Text>
+      <Text>Situação: {mapped.situacao}</Text>
+    </View>
+  );
 };
 
 export const mapAtendimentoToExcel = (data) => {

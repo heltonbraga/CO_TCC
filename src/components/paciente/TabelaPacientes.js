@@ -1,51 +1,47 @@
 import React from "react";
 import { connect } from "react-redux";
 import { CircularProgress, Dialog } from "@material-ui/core";
-import { getAllDentistas, getDentistasByNome, deleteDentista } from "../Api";
+import { getAllPacientes, getPacientesByNome } from "../Api";
 import HDataTable from "../HDataTable/HDataTable";
 import { setMessage, setTela } from "../../actions";
-import { mapDentistaToExcel } from "../form-tcc/dataFormat";
-import HDialog from "./HDialog";
+import { mapPacienteToExcel } from "../form-tcc/dataFormat";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
-import PdfDentista from "./PdfDentista";
+import PdfPaciente from "./PdfPaciente";
 
-class TabelaDentistas extends React.Component {
+class TabelaPacientes extends React.Component {
   state = {
-    dentistas: null,
+    pacientes: null,
     table_pageSize: 10,
     table_page: 1,
     table_orderBy: "nome",
     table_ascOrder: "asc",
-    delDialogOpen: false,
-    delDialogKey: null,
     pdfDialogKey: null,
     wait: false,
+    compacto: window.innerWidth <= 500,
   };
 
   componentDidMount() {
-    getAllDentistas(
+    getAllPacientes(
       this.state.table_page,
       this.state.table_pageSize,
       this.state.table_orderBy + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showDentistas,
-      this.showError
+      this.showPacientes,
+      this.showError,
+      this.props.perfil.id
     );
   }
 
-  showDentistas = (res) => {
+  showPacientes = (res) => {
     if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
-      this.props.setMessage({ color: "warning", text: "Nenhum dentista encontrado" });
+      this.props.setMessage({ color: "warning", text: "Nenhum paciente encontrado" });
       return;
     }
     let ord = res.data.parametros.order ? res.data.parametros.order : "nome-asc";
-    if (ord.slice(0, 3) === "cro") {
-      ord = "nr_" + ord;
-    }
     let i = ord.indexOf("-");
     this.setState({
-      dentistas: res.data,
+      pacientes: res.data,
       table_page: res.data.parametros.page ? res.data.parametros.page : 1,
       table_pageSize: res.data.parametros.pagesize ? res.data.parametros.pagesize : 10,
       table_orderBy: ord.slice(0, i),
@@ -57,11 +53,26 @@ class TabelaDentistas extends React.Component {
     this.props.setMessage({ color: "warning", text: err });
   };
 
-  getDentistaHeader = () => {
-    return [
-      { id: "nr_cro", numeric: false, disablePadding: false, label: "CRO", style: { width: 80 } },
-      { id: "nome", numeric: false, disablePadding: false, label: "Nome" },
-    ];
+  getPacienteHeader = () => {
+    return this.state.compacto
+      ? [
+          {
+            id: "nome",
+            numeric: false,
+            disablePadding: false,
+            label: "Nome",
+          },
+        ]
+      : [
+          {
+            id: "nome",
+            numeric: false,
+            disablePadding: false,
+            label: "Nome",
+            style: { width: "50%", maxWidth: 200 },
+          },
+          { id: "situacao", numeric: true, disablePadding: false, label: "Situação" },
+        ];
   };
 
   getTableActions = (entidade) => {
@@ -70,35 +81,32 @@ class TabelaDentistas extends React.Component {
       call: this.table_onEditRegister,
       icon: "EDITAR",
     };
-    let excluir = {
-      tooltip: "excluir",
-      call: this.table_onDeleteRegister,
-      icon: "DELETAR",
-    };
     let exportar = {
       tooltip: "PDF",
       call: this.table_onPDF,
       icon: "EXPORTAR",
     };
-    return [editar, excluir, exportar];
+    return [editar, exportar];
   };
 
   formatarDadosTabela = () => {
-    const den = this.state.dentistas;
+    const den = this.state.pacientes;
     if (!den) {
       return null;
     }
     const rows = den.registros.map((d) => {
       return {
         key: d.id,
-        view: [
-          { value: d.nr_cro, align: "left" },
-          { value: d.Pessoa.nome, align: "left" },
-        ],
+        view: this.state.compacto
+          ? [{ value: d.Pessoa.nome, align: "left" }]
+          : [
+              { value: d.Pessoa.nome, align: "left" },
+              { value: d.dm_situacao, align: "right" },
+            ],
       };
     });
     return {
-      headCells: this.getDentistaHeader(),
+      headCells: this.getPacienteHeader(),
       rows: rows,
       total: den.total,
       page: this.state.table_page,
@@ -107,77 +115,73 @@ class TabelaDentistas extends React.Component {
   };
 
   table_onSearch = (event, key) => {
-    getDentistasByNome(key, this.props.setToken, this.showDentistas, this.showError);
+    getPacientesByNome(key, this.props.setToken, this.showPacientes, this.showError);
   };
 
   table_onSearchCancel = () => {
-    getAllDentistas(
+    getAllPacientes(
       this.state.table_page,
       this.state.table_pageSize,
       this.state.table_orderBy + (this.state.table_ascOrder ? "-asc" : "-desc"),
       this.props.setToken,
-      this.showDentistas,
-      this.showError
+      this.showPacientes,
+      this.showError,
+      this.props.perfil.id
     );
   };
 
-  alterKey = (key) => {
-    return key === "nr_cro" ? "cro" : key;
-  };
-
   table_onChangePage = (event, pageNumber) => {
-    getAllDentistas(
+    getAllPacientes(
       pageNumber + 1,
       this.state.table_pageSize,
-      this.alterKey(this.state.table_orderBy) + "-" + this.state.table_ascOrder,
+      this.state.table_orderBy + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showDentistas,
-      this.showError
+      this.showPacientes,
+      this.showError,
+      this.props.perfil.id
     );
   };
 
   table_onChangePageSize = (event) => {
-    getAllDentistas(
+    getAllPacientes(
       this.state.table_page,
       parseInt(event.target.value, 10),
-      this.alterKey(this.state.table_orderBy) + "-" + this.state.table_ascOrder,
+      this.state.table_orderBy + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showDentistas,
-      this.showError
+      this.showPacientes,
+      this.showError,
+      this.props.perfil.id
     );
   };
 
   table_onSort = (event, key) => {
     let asc =
       key === this.state.table_orderBy && this.state.table_ascOrder === "asc" ? "desc" : "asc";
-    getAllDentistas(
+    getAllPacientes(
       this.state.table_page,
       this.state.table_pageSize,
-      this.alterKey(key) + "-" + asc,
+      key + "-" + asc,
       this.props.setToken,
-      this.showDentistas,
-      this.showError
+      this.showPacientes,
+      this.showError,
+      this.props.perfil.id
     );
   };
 
   table_onCreateRegister = (event) => {
-    this.props.setTela("CREATE_DENTISTA");
+    this.props.setTela("CREATE_PACIENTE");
   };
 
   table_onEditRegister = (event, key) => {
-    this.props.setTela("EDIT_DENTISTA:" + key);
-  };
-
-  table_onDeleteRegister = (event, key) => {
-    this.setState({ delDialogOpen: true, delDialogKey: key });
+    this.props.setTela("EDIT_PACIENTE:" + key);
   };
 
   table_onSelect = (event, key) => {
-    this.props.setTela("VIEW_DENTISTA:" + key);
+    this.props.setTela("VIEW_PACIENTE:" + key);
   };
 
   table_export = (event) => {
-    getAllDentistas(
+    getAllPacientes(
       1,
       10000,
       "nome-asc",
@@ -195,7 +199,7 @@ class TabelaDentistas extends React.Component {
       this.setState({ dataExport: [] });
     }
     let data = res.data.registros.map((d) => {
-      return mapDentistaToExcel(d);
+      return mapPacienteToExcel(d);
     });
     console.log(data);
     const ws = XLSX.utils.json_to_sheet(data);
@@ -217,31 +221,9 @@ class TabelaDentistas extends React.Component {
     this.setState({ pdfDialogOpen: true, pdfDialogKey: key });
   };
 
-  dialog_onConfirm = (event) => {
-    deleteDentista(
-      { id: this.state.delDialogKey, admin: this.props.perfil.id },
-      this.props.setToken,
-      this.onDeleteSuccess,
-      this.showError
-    );
-  };
-
-  onDeleteSuccess = () => {
-    getAllDentistas(
-      this.state.table_page,
-      this.state.table_pageSize,
-      this.state.table_orderBy + "-" + this.state.table_ascOrder,
-      this.props.setToken,
-      this.showDentistas,
-      this.showError
-    );
-    this.setState({ delDialogOpen: false, delDialogKey: null });
-    this.props.setMessage({ color: "primary", text: "Cadastro deletado!" });
-  };
-
-  getDentistaSelecionado = () => {
-    return this.state.dentistas && this.state.delDialogKey
-      ? this.state.dentistas.registros.filter((d) => d.id === this.state.delDialogKey)[0]
+  getPacienteSelecionado = () => {
+    return this.state.pacientes && this.state.delDialogKey
+      ? this.state.pacientes.registros.filter((d) => d.id === this.state.delDialogKey)[0]
       : {};
   };
 
@@ -259,25 +241,16 @@ class TabelaDentistas extends React.Component {
           }}
         />
         {this.state.wait && <CircularProgress />}
-        {this.state.delDialogKey && (
-          <HDialog
-            data={this.getDentistaSelecionado()}
-            open={this.state.delDialogOpen}
-            onClose={(e) => this.setState({ delDialogOpen: false })}
-            onCancel={(e) => this.setState({ delDialogOpen: false })}
-            onConfirm={this.dialog_onConfirm}
-          />
-        )}
         {this.state.pdfDialogKey && (
-          <PdfDentista
-            idDentista={this.state.pdfDialogKey}
+          <PdfPaciente
+            idPaciente={this.state.pdfDialogKey}
             idUser={this.props.perfil.id}
             setToken={this.props.setToken}
             onClose={(e) => this.setState({ pdfDialogKey: null })}
           />
         )}
         <HDataTable
-          title="Dentistas"
+          title="Pacientes"
           searchPlaceHolder="filtrar por nome..."
           onSearch={this.table_onSearch}
           onExport={this.table_export}
@@ -291,7 +264,7 @@ class TabelaDentistas extends React.Component {
           onCreateRegister={this.table_onCreateRegister}
           orderBy={this.state.table_orderBy}
           ascOrder={this.state.table_ascOrder}
-          actions={this.getTableActions("dentista")}
+          actions={this.getTableActions("paciente")}
         />
       </div>
     );
@@ -307,4 +280,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { setMessage, setTela })(TabelaDentistas);
+export default connect(mapStateToProps, { setMessage, setTela })(TabelaPacientes);

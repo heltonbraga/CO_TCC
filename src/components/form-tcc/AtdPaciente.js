@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm, formValueSelector } from "redux-form";
-import {validate} from "./validate";
+import { validate } from "./validate";
 import renderField from "./renderField";
 import WizButtons from "./WizButtons";
 import PacienteSelect from "./PacienteSelect";
@@ -40,17 +40,13 @@ let AtdPaciente = (props) => {
     <form onSubmit={handleSubmit}>
       <Grid container justify="center">
         <PacienteSelect onSelect={selPaciente} selected={paciente} />
-        <Grid container justify="center">
-          <div className="divConvenios">
-            <Field name="convenio" type={"combo-" + off} component={renderField} label="Convênio">
-              {convenios.map((c, i) => (
-                <MenuItem key={i} value={c}>
-                  {c}
-                </MenuItem>
-              ))}
-            </Field>
-          </div>
-        </Grid>
+        <Field name="convenio" type={"combo-" + off} component={renderField} label="Convênio">
+          {convenios.map((c, i) => (
+            <MenuItem key={i} value={c}>
+              {c}
+            </MenuItem>
+          ))}
+        </Field>
       </Grid>
       <WizButtons
         onCancel={(e) => {

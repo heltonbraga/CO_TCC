@@ -1,7 +1,17 @@
 import React from "react";
 import moment from "moment";
 import { getVagasCalendario } from "../Api";
-import { CircularProgress, Dialog, Grid, Button } from "@material-ui/core";
+import {
+  CircularProgress,
+  Dialog,
+  Grid,
+  Button,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Alert } from "reactstrap";
 
 const semana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
@@ -13,6 +23,7 @@ export default class DialogVaga extends React.Component {
     opcoes: [],
     vagas: [],
     calendario: [],
+    expanded: "",
   };
 
   componentDidMount() {
@@ -70,18 +81,39 @@ export default class DialogVaga extends React.Component {
 
   getNome = (id) => {
     let d = this.props.listaDentistas.filter((d) => d.id === parseInt(id))[0];
-    return d.Pessoa.nome.slice(0, d.Pessoa.nome.indexOf(" ")) + "-" + d.nr_cro;
+    return d.Pessoa.nome.split(" ")[0] + "-" + d.nr_cro;
+  };
+
+  handleHourPanelChange = (id) => {
+    let novo = this.state.expanded === id ? "" : id;
+    this.setState({ expanded: novo });
   };
 
   renderDiaSelecionado = () => {
+    const compacto = window.innerWidth <= 500;
     let dia = this.state.opcoes[0];
     return (
       <div className="dayDetail">
-        <div className="dayTitle">{moment(dia.horario).format("DD/MM/YYYY")}</div>
+        <Typography style={{ textAlign: "center" }} variant="h6" component="div">
+          {moment(dia.horario).format("DD/MM/YYYY")}
+        </Typography>
         {this.state.opcoes.map((o, i) => (
-          <div className="horasDia" key={i}>
-            <div className="vagaHora">{o.horario.slice(-5)}</div>
-            <div className="vagaLista">
+          <Accordion
+            expanded={this.state.expanded === "hp_" + i}
+            onChange={(e) => this.handleHourPanelChange("hp_" + i)}
+            className="hourPanel"
+            key={i}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls={"hp_" + i}
+              id={"hp_" + i}
+            >
+              <Typography style={{ textAlign: "center" }} variant="h6" component="div">
+                {o.horario.slice(-5)}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
               {o.dentistas.map((id) => (
                 <div
                   className="tagDentista"
@@ -91,14 +123,15 @@ export default class DialogVaga extends React.Component {
                   {this.getNome(id)}
                 </div>
               ))}
-            </div>
-          </div>
+            </AccordionDetails>
+          </Accordion>
         ))}
       </div>
     );
   };
 
   renderCalendario = () => {
+    const compacto = window.innerWidth <= 500;
     let cal = this.state.calendario.slice();
     let semanas = [];
     while (cal.length) {
@@ -110,44 +143,49 @@ export default class DialogVaga extends React.Component {
           <thead>
             <tr className="weekdays">
               {semana.map((d) => (
-                <th scope="col" key={d}>
-                  {d}
+                <th scope="col" className="weekday" key={d}>
+                  {compacto ? d.slice(0, 1).toUpperCase() : d}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {semanas.map((s, i) => (
-              <tr key={i}>
-                {s.map((d, j) => (
-                  <td className={d.horarios.length === 0 ? "dayOff" : "day"} key={j}>
-                    <div className="date">{d.dia.slice(-2) + "/" + d.dia.slice(5, 7)}</div>
-                    {d.horarios.length > 0 && (
-                      <div>
-                        <div
-                          className={d.turnos[0] ? "turnoComVaga" : "turnoSemVaga"}
-                          onClick={(e) => this.selectTurno(d, 0)}
-                        >
-                          manhã
+            {semanas.map((s, i) => {
+              let temNoite = s.filter((d) => d.turnos[2]).length > 0;
+              return (
+                <tr key={i}>
+                  {s.map((d, j) => (
+                    <td className={d.horarios.length === 0 ? "dayOff" : "day"} key={j}>
+                      <div className="date">{d.dia.slice(-2) + "/" + d.dia.slice(5, 7)}</div>
+                      {d.horarios.length > 0 && (
+                        <div>
+                          <div
+                            className={d.turnos[0] ? "turnoComVaga" : "turnoSemVaga"}
+                            onClick={(e) => this.selectTurno(d, 0)}
+                          >
+                            {compacto ? "M" : "manhã"}
+                          </div>
+                          <div
+                            className={d.turnos[1] ? "turnoComVaga" : "turnoSemVaga"}
+                            onClick={(e) => this.selectTurno(d, 1)}
+                          >
+                            {compacto ? "T" : "tarde"}
+                          </div>
+                          {temNoite && (
+                            <div
+                              className={d.turnos[2] ? "turnoComVaga" : "turnoSemVaga"}
+                              onClick={(e) => this.selectTurno(d, 2)}
+                            >
+                              {compacto ? "N" : "noite"}
+                            </div>
+                          )}
                         </div>
-                        <div
-                          className={d.turnos[1] ? "turnoComVaga" : "turnoSemVaga"}
-                          onClick={(e) => this.selectTurno(d, 1)}
-                        >
-                          tarde
-                        </div>
-                        <div
-                          className={d.turnos[2] ? "turnoComVaga" : "turnoSemVaga"}
-                          onClick={(e) => this.selectTurno(d, 2)}
-                        >
-                          noite
-                        </div>
-                      </div>
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </Grid>
@@ -156,8 +194,8 @@ export default class DialogVaga extends React.Component {
 
   render() {
     return (
-      <Dialog open={true}>
-        <div className="divCadPac">
+      <Dialog open={true} fullScreen={window.innerWidth <= 500}>
+        <div className="divCal">
           {this.state.erro && (
             <Alert
               color="warning"

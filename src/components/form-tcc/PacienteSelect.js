@@ -8,13 +8,12 @@ import { setMessage } from "../../actions";
 import { getAllPacientes, getPaciente } from "../Api";
 import { formatar } from "../form-tcc/dataFormat";
 import FormPaciente from "../paciente/FormPaciente";
-import DialogPaciente from "../paciente/DialogPaciente";
 
 class PacienteSelect extends React.Component {
   state = { pacientes: [], inputKey: null, paciente: null, showSubForm: false };
 
   componentDidMount() {
-    getAllPacientes(this.props.setToken, this.loadPacientes, this.showError);
+    getAllPacientes(1, 10000, "nome-asc", this.props.setToken, this.loadPacientes, this.showError);
     if (this.props.selected) {
       this.setState({ paciente: this.props.selected });
     }
@@ -64,7 +63,7 @@ class PacienteSelect extends React.Component {
     return (
       <Grid container justify="center">
         <Grid container justify="center">
-          <Grid item>
+          <Grid container item justify="center">
             <Autocomplete
               id="comboPaciente"
               freeSolo
@@ -75,15 +74,13 @@ class PacienteSelect extends React.Component {
                   formatar("000000" + option.Pessoa.nr_cpf, "cpf") + " - " + option.Pessoa.nome
                 );
               }}
-              style={{ width: 400, marginTop: 30 }}
+              className="pacAutocomplete"
               renderInput={(params) => (
                 <TextField {...params} id="inputPaciente" label="Paciente" variant="standard" />
               )}
               onChange={(e, val) => this.onSelect(val)}
               onInputChange={(e, val) => this.setState({ inputKey: val })}
             />
-          </Grid>
-          <Grid item>
             <div className="plusDiv">
               <Tooltip title="novo">
                 <AddCircleOutlineIcon
@@ -92,7 +89,8 @@ class PacienteSelect extends React.Component {
                 />
               </Tooltip>
               {this.state.showSubForm && (
-                <DialogPaciente
+                <FormPaciente
+                  dialog={true}
                   callback={this.subFormResult}
                   token={this.props.setToken}
                   sugestao={this.state.inputKey}
