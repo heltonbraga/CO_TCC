@@ -1,13 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
 import { CircularProgress, Dialog } from "@material-ui/core";
-import { getAllPacientes, getPacientesByNome } from "../Api";
+import { getAllPacientes, getPacientesByNome, getPaciente } from "../Api";
 import HDataTable from "../HDataTable/HDataTable";
 import { setMessage, setTela } from "../../actions";
-import { mapPacienteToExcel } from "../form-tcc/dataFormat";
-import * as FileSaver from "file-saver";
-import * as XLSX from "xlsx";
-import PdfPaciente from "./PdfPaciente";
+import { mapPacienteToExcel, mapPacienteToPdf } from "../form-tcc/dataFormat";
+import { toExcel, PdfDialog } from "../HDataTable/ExportToFile";
 
 class TabelaPacientes extends React.Component {
   state = {
@@ -194,22 +192,13 @@ class TabelaPacientes extends React.Component {
   };
 
   table_exportCallback = (res) => {
-    if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
-      this.props.setMessage({ color: "warning", text: "Nenhum registro gerado!" });
-      this.setState({ dataExport: [] });
-    }
-    let data = res.data.registros.map((d) => {
-      return mapPacienteToExcel(d);
-    });
-    console.log(data);
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const arquivo = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-    });
-    FileSaver.saveAs(arquivo, "planilha.xlsx");
-    this.setState({ wait: false });
+    toExcel(
+      res.data.registros,
+      "pacientes",
+      mapPacienteToExcel,
+      () => this.setState({ wait: false }),
+      (msg) => this.table_exportError(msg)
+    );
   };
 
   table_exportError = (err) => {
@@ -242,11 +231,14 @@ class TabelaPacientes extends React.Component {
         />
         {this.state.wait && <CircularProgress />}
         {this.state.pdfDialogKey && (
-          <PdfPaciente
-            idPaciente={this.state.pdfDialogKey}
+          <PdfDialog
+            idEntidade={this.state.pdfDialogKey}
             idUser={this.props.perfil.id}
-            setToken={this.props.setToken}
-            onClose={(e) => this.setState({ pdfDialogKey: null })}
+            token={this.props.setToken}
+            getEntidade={getPaciente}
+            mapping={mapPacienteToPdf}
+            fileName={"paciente_" + this.state.pdfDialogKey}
+            onClose={() => this.setState({ pdfDialogKey: null })}
           />
         )}
         <HDataTable

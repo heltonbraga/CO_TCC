@@ -13,6 +13,7 @@ import {
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
   getAtendimentos,
+  getAtendimentosMes,
   getAllDentistas,
   cancelarAtendimento,
   confirmarAtendimento,
@@ -21,10 +22,9 @@ import HCustomTable from "../HDataTable/HCustomTable";
 import { setMessage, setTela } from "../../actions";
 import { mapAtendimentoToExcel } from "../form-tcc/dataFormat";
 import HDialog from "../HDataTable/HDialog";
-import * as FileSaver from "file-saver";
-import * as XLSX from "xlsx";
 import moment from "moment";
 import whatsappIcon from "../img/whatsappIcon.png";
+import { toExcel } from "../HDataTable/ExportToFile";
 
 const motivos = ["Agenda do dentista", "Agenda do paciente", "Força maior"];
 
@@ -38,6 +38,7 @@ class TabelaAtendimentos extends React.Component {
     dialogKey: null,
     dia: moment().format("YYYY-MM-DD"),
     dentista: 0,
+    dentistas: [],
     wait: false,
     compacto: window.innerWidth <= 500,
   };
@@ -195,48 +196,32 @@ class TabelaAtendimentos extends React.Component {
     if (atd.dm_situacao === "cancelado" || atd.dm_situacao === "realizado") {
       return;
     }
-    console.log("REMARCAR_ATENDIMENTO:" + key);
-    //this.setState({ delDialogOpen: true, delDialogKey: key });
+    this.props.setTela("EDIT_ATENDIMENTO:" + key);
   };
 
   table_onSelect = (event, key) => {
-    let atd = this.getAtendimentoSelecionado(key);
-    console.log("INICIAR_ATENDIMENTO:");
-    console.log(atd);
-    //this.props.setTela("VIEW_ATENDIMENTO:" + key);
+    this.props.setTela("VIEW_ATENDIMENTO:" + key);
   };
 
   table_export = (event) => {
-    /*getAllProcedimentos(
-      1,
-      10000,
-      "nome-asc",
+    getAtendimentosMes(
+      moment(this.state.dia).format("YYYY-MM-DD"),
+      this.state.dentista,
       this.props.setToken,
       this.table_exportCallback,
-      this.table_exportError,
-      this.props.perfil.id
+      this.table_exportError
     );
-    this.setState({ wait: true });*/
-    console.log("TODO: table_export");
+    this.setState({ wait: true });
   };
 
   table_exportCallback = (res) => {
-    if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
-      this.props.setMessage({ color: "warning", text: "Nenhum registro gerado!" });
-      this.setState({ dataExport: [] });
-    }
-    let data = res.data.registros.map((d) => {
-      return mapAtendimentoToExcel(d);
-    });
-    console.log(data);
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const arquivo = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-    });
-    FileSaver.saveAs(arquivo, "atendimentos.xlsx");
-    this.setState({ wait: false });
+    toExcel(
+      res.data.registros,
+      "atendimentos",
+      mapAtendimentoToExcel,
+      () => this.setState({ wait: false }),
+      (msg) => this.table_exportError(msg)
+    );
   };
 
   table_exportError = (err) => {

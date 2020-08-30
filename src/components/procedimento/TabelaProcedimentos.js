@@ -1,42 +1,40 @@
 import React from "react";
 import { connect } from "react-redux";
 import { CircularProgress, Dialog } from "@material-ui/core";
-import { getAllAuxiliares, getAuxiliaresByNome, deleteAuxiliar } from "../Api";
+import { getAllProcedimentos, getProcedimentosByNome, deleteProcedimento } from "../Api";
 import HDataTable from "../HDataTable/HDataTable";
 import { setMessage, setTela } from "../../actions";
-import { mapAuxiliarToExcel } from "../form-tcc/dataFormat";
-import HDialog from "./HDialog";
-import * as FileSaver from "file-saver";
-import * as XLSX from "xlsx";
-import PdfAuxiliar from "./PdfAuxiliar";
+import { mapProcedimentoToExcel } from "../form-tcc/dataFormat";
+import HDialog from "../HDataTable/HDialog";
+import { toExcel } from "../HDataTable/ExportToFile";
 
-class TabelaAuxiliares extends React.Component {
+class TabelaProcedimentos extends React.Component {
   state = {
-    auxiliares: null,
+    procedimentos: null,
     table_pageSize: 10,
     table_page: 1,
     table_orderBy: "nome",
     table_ascOrder: "asc",
     delDialogOpen: false,
     delDialogKey: null,
-    pdfDialogKey: null,
     wait: false,
+    compacto: window.innerWidth <= 500,
   };
 
   componentDidMount() {
-    getAllAuxiliares(
+    getAllProcedimentos(
       this.state.table_page,
       this.state.table_pageSize,
       this.state.table_orderBy + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showAuxiliares,
+      this.showProcedimentos,
       this.showError
     );
   }
 
-  showAuxiliares = (res) => {
+  showProcedimentos = (res) => {
     if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
-      this.props.setMessage({ color: "warning", text: "Nenhum auxiliar encontrado" });
+      this.props.setMessage({ color: "warning", text: "Nenhum procedimento encontrado" });
       return;
     }
     let ord = res.data.parametros.order ? res.data.parametros.order : "nome-asc";
@@ -45,7 +43,7 @@ class TabelaAuxiliares extends React.Component {
     }
     let i = ord.indexOf("-");
     this.setState({
-      auxiliares: res.data,
+      procedimentos: res.data,
       table_page: res.data.parametros.page ? res.data.parametros.page : 1,
       table_pageSize: res.data.parametros.pagesize ? res.data.parametros.pagesize : 10,
       table_orderBy: ord.slice(0, i),
@@ -57,11 +55,29 @@ class TabelaAuxiliares extends React.Component {
     this.props.setMessage({ color: "warning", text: err });
   };
 
-  getAuxiliarHeader = () => {
-    return [
-      { id: "nr_cro", numeric: false, disablePadding: false, label: "CRO", style: { width: 80 } },
-      { id: "nome", numeric: false, disablePadding: false, label: "Nome" },
-    ];
+  getProcedimentoHeader = () => {
+    return this.state.compacto
+      ? [
+          {
+            id: "nome",
+            numeric: false,
+            disablePadding: false,
+            label: "Nome",
+            style: { width: "50%", maxWidth: 200 },
+          },
+          { id: "duracao", numeric: true, disablePadding: false, label: "Duração" },
+        ]
+      : [
+          {
+            id: "nome",
+            numeric: false,
+            disablePadding: false,
+            label: "Nome",
+            style: { width: "50%", maxWidth: 200 },
+          },
+          { id: "dm_tipo", numeric: false, disablePadding: false, label: "Tipo" },
+          { id: "duracao", numeric: true, disablePadding: false, label: "Duração" },
+        ];
   };
 
   getTableActions = (entidade) => {
@@ -75,30 +91,31 @@ class TabelaAuxiliares extends React.Component {
       call: this.table_onDeleteRegister,
       icon: "DELETAR",
     };
-    let exportar = {
-      tooltip: "PDF",
-      call: this.table_onPDF,
-      icon: "EXPORTAR",
-    };
-    return [editar, excluir, exportar];
+    return [editar, excluir];
   };
 
   formatarDadosTabela = () => {
-    const den = this.state.auxiliares;
+    const den = this.state.procedimentos;
     if (!den) {
       return null;
     }
     const rows = den.registros.map((d) => {
       return {
         key: d.id,
-        view: [
-          { value: d.nr_cro, align: "left" },
-          { value: d.Pessoa.nome, align: "left" },
-        ],
+        view: this.state.compacto
+          ? [
+              { value: d.nome, align: "left" },
+              { value: d.duracao, align: "right" },
+            ]
+          : [
+              { value: d.nome, align: "left" },
+              { value: d.dm_tipo, align: "left" },
+              { value: d.duracao, align: "right" },
+            ],
       };
     });
     return {
-      headCells: this.getAuxiliarHeader(),
+      headCells: this.getProcedimentoHeader(),
       rows: rows,
       total: den.total,
       page: this.state.table_page,
@@ -107,42 +124,42 @@ class TabelaAuxiliares extends React.Component {
   };
 
   table_onSearch = (event, key) => {
-    getAuxiliaresByNome(key, this.props.setToken, this.showAuxiliares, this.showError);
+    getProcedimentosByNome(key, this.props.setToken, this.showProcedimentos, this.showError);
   };
 
   table_onSearchCancel = () => {
-    getAllAuxiliares(
+    getAllProcedimentos(
       this.state.table_page,
       this.state.table_pageSize,
       this.state.table_orderBy + (this.state.table_ascOrder ? "-asc" : "-desc"),
       this.props.setToken,
-      this.showAuxiliares,
+      this.showProcedimentos,
       this.showError
     );
   };
 
   alterKey = (key) => {
-    return key === "nr_cro" ? "cro" : key;
+    return key === "id" ? "id" : key;
   };
 
   table_onChangePage = (event, pageNumber) => {
-    getAllAuxiliares(
+    getAllProcedimentos(
       pageNumber + 1,
       this.state.table_pageSize,
       this.alterKey(this.state.table_orderBy) + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showAuxiliares,
+      this.showProcedimentos,
       this.showError
     );
   };
 
   table_onChangePageSize = (event) => {
-    getAllAuxiliares(
+    getAllProcedimentos(
       this.state.table_page,
       parseInt(event.target.value, 10),
       this.alterKey(this.state.table_orderBy) + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showAuxiliares,
+      this.showProcedimentos,
       this.showError
     );
   };
@@ -150,22 +167,22 @@ class TabelaAuxiliares extends React.Component {
   table_onSort = (event, key) => {
     let asc =
       key === this.state.table_orderBy && this.state.table_ascOrder === "asc" ? "desc" : "asc";
-    getAllAuxiliares(
+    getAllProcedimentos(
       this.state.table_page,
       this.state.table_pageSize,
       this.alterKey(key) + "-" + asc,
       this.props.setToken,
-      this.showAuxiliares,
+      this.showProcedimentos,
       this.showError
     );
   };
 
   table_onCreateRegister = (event) => {
-    this.props.setTela("CREATE_AUXILIAR");
+    this.props.setTela("CREATE_PROCEDIMENTO");
   };
 
   table_onEditRegister = (event, key) => {
-    this.props.setTela("EDIT_AUXILIAR:" + key);
+    this.props.setTela("EDIT_PROCEDIMENTO:" + key);
   };
 
   table_onDeleteRegister = (event, key) => {
@@ -173,11 +190,11 @@ class TabelaAuxiliares extends React.Component {
   };
 
   table_onSelect = (event, key) => {
-    this.props.setTela("VIEW_AUXILIAR:" + key);
+    this.props.setTela("VIEW_PROCEDIMENTO:" + key);
   };
 
   table_export = (event) => {
-    getAllAuxiliares(
+    getAllProcedimentos(
       1,
       10000,
       "nome-asc",
@@ -190,22 +207,13 @@ class TabelaAuxiliares extends React.Component {
   };
 
   table_exportCallback = (res) => {
-    if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
-      this.props.setMessage({ color: "warning", text: "Nenhum registro gerado!" });
-      this.setState({ dataExport: [] });
-    }
-    let data = res.data.registros.map((d) => {
-      return mapAuxiliarToExcel(d);
-    });
-    console.log(data);
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const arquivo = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-    });
-    FileSaver.saveAs(arquivo, "planilha.xlsx");
-    this.setState({ wait: false });
+    toExcel(
+      res.data.registros,
+      "procedimentos",
+      mapProcedimentoToExcel,
+      () => this.setState({ wait: false }),
+      (msg) => this.table_exportError(msg)
+    );
   };
 
   table_exportError = (err) => {
@@ -213,12 +221,8 @@ class TabelaAuxiliares extends React.Component {
     this.setState({ wait: false });
   };
 
-  table_onPDF = (event, key) => {
-    this.setState({ pdfDialogOpen: true, pdfDialogKey: key });
-  };
-
   dialog_onConfirm = (event) => {
-    deleteAuxiliar(
+    deleteProcedimento(
       { id: this.state.delDialogKey, admin: this.props.perfil.id },
       this.props.setToken,
       this.onDeleteSuccess,
@@ -227,22 +231,33 @@ class TabelaAuxiliares extends React.Component {
   };
 
   onDeleteSuccess = () => {
-    getAllAuxiliares(
+    getAllProcedimentos(
       this.state.table_page,
       this.state.table_pageSize,
       this.state.table_orderBy + "-" + this.state.table_ascOrder,
       this.props.setToken,
-      this.showAuxiliares,
+      this.showProcedimentos,
       this.showError
     );
     this.setState({ delDialogOpen: false, delDialogKey: null });
     this.props.setMessage({ color: "primary", text: "Cadastro deletado!" });
   };
 
-  getAuxiliarSelecionado = () => {
-    return this.state.auxiliares && this.state.delDialogKey
-      ? this.state.auxiliares.registros.filter((d) => d.id === this.state.delDialogKey)[0]
+  getProcedimentoSelecionado = () => {
+    return this.state.procedimentos && this.state.delDialogKey
+      ? this.state.procedimentos.registros.filter((d) => d.id === this.state.delDialogKey)[0]
       : {};
+  };
+
+  renderDelDialogContent = () => {
+    const data = this.getProcedimentoSelecionado();
+    return (
+      <div>
+        A deleção do cadastro de um procedimento é irreversível e pode impactar na agenda de
+        atendimentos. Deseja confirmar a deleção do cadastro do procedimento
+        <b>{" " + data.nome}</b> ?
+      </div>
+    );
   };
 
   render() {
@@ -261,23 +276,18 @@ class TabelaAuxiliares extends React.Component {
         {this.state.wait && <CircularProgress />}
         {this.state.delDialogKey && (
           <HDialog
-            data={this.getAuxiliarSelecionado()}
+            title="Leia com atenção!"
+            contentRender={this.renderDelDialogContent}
             open={this.state.delDialogOpen}
             onClose={(e) => this.setState({ delDialogOpen: false })}
-            onCancel={(e) => this.setState({ delDialogOpen: false })}
-            onConfirm={this.dialog_onConfirm}
-          />
-        )}
-        {this.state.pdfDialogKey && (
-          <PdfAuxiliar
-            idAuxiliar={this.state.pdfDialogKey}
-            idUser={this.props.perfil.id}
-            setToken={this.props.setToken}
-            onClose={(e) => this.setState({ pdfDialogKey: null })}
+            onPrimary={(e) => this.setState({ delDialogOpen: false })}
+            primaryLabel="Cancelar"
+            onSecondary={this.dialog_onConfirm}
+            secondaryLabel="Deletar"
           />
         )}
         <HDataTable
-          title="Auxiliares"
+          title="Procedimentos"
           searchPlaceHolder="filtrar por nome..."
           onSearch={this.table_onSearch}
           onExport={this.table_export}
@@ -291,7 +301,7 @@ class TabelaAuxiliares extends React.Component {
           onCreateRegister={this.table_onCreateRegister}
           orderBy={this.state.table_orderBy}
           ascOrder={this.state.table_ascOrder}
-          actions={this.getTableActions("auxiliar")}
+          actions={this.getTableActions("procedimento")}
         />
       </div>
     );
@@ -307,4 +317,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { setMessage, setTela })(TabelaAuxiliares);
+export default connect(mapStateToProps, { setMessage, setTela })(TabelaProcedimentos);

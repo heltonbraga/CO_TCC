@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, View } from "@react-pdf/renderer";
+import moment from "moment";
 
 export const formatar = (value, format) => {
   if (!value) return undefined;
@@ -490,14 +491,25 @@ export const mapPacienteToPdf = (data) => {
 };
 
 export const mapAtendimentoToExcel = (data) => {
-  let d = data;
   return {
-    x: "x",
+    id: data.id,
+    situacao: data.dm_situacao,
+    convenio: data.dm_convenio,
+    paciente: data.Paciente.Pessoa.nome,
+    cpf_paciente: data.Paciente.Pessoa.nr_cpf,
+    dentista: data.Dentista.Pessoa.nome,
+    cro_dentista: data.Dentista.nr_cro,
+    procedimento: data.Procedimento.nome,
+    data: moment(data.dt_horario).format("YYYY-MM-DD"),
+    inicio: moment(data.dt_horario).format("HH:mm"),
+    fim: moment(data.dt_horario).add(data.Procedimento.duracao, "minute").format("HH:mm"),
+    atendimento_anterior: data.AtendimentoAnterior
+      ? moment(data.AtendimentoAnterior.dt_horario).format("YYYY-MM-DD")
+      : null,
   };
 };
 
 export const mapAtendimentoFormToRequest = (formData, idAtendimento, idUser) => {
-  console.log(formData.vaga);
   return {
     id: idAtendimento,
     user: idUser,
@@ -514,6 +526,41 @@ export const mapAtendimentoResponseToForm = (data) => {
   if (!data) {
     return undefined;
   }
+  const a = data.AtendimentoAnterior;
+  const anterior = a
+    ? {
+        id: a.id,
+        situacao: a.dm_situacao,
+        convenio: a.dm_convenio,
+        paciente: a.id_paciente,
+        dentista: a.id_dentista,
+        procedimento: a.id_procedimento,
+        vaga: a.dt_horario,
+      }
+    : { id: data.anterior_id };
+  const d = data.Dentista;
+  const dentista = d
+    ? {
+        id: d.id,
+        nr_cro: d.nr_cro,
+        Pessoa: d.Pessoa,
+      }
+    : { id: data.id_dentista };
+  const p = data.Paciente;
+  const paciente = p
+    ? {
+        id: p.id,
+        Pessoa: p.Pessoa,
+      }
+    : { id: data.id_paciente };
+  const procedimento = data.Procedimento
+    ? {
+        id: data.Procedimento.id,
+        nome: data.Procedimento.nome,
+        dm_tipo: data.Procedimento.dm_tipo,
+        duracao: data.Procedimento.duracao,
+      }
+    : { id: data.id_procedimento };
   return {
     idAtendimento: data.id,
     situacao: data.dm_situacao,
@@ -522,5 +569,9 @@ export const mapAtendimentoResponseToForm = (data) => {
     dentista: data.id_dentista,
     procedimento: data.id_procedimento,
     vaga: data.dt_horario,
+    AtendimentoAnterior: anterior,
+    Dentista: dentista,
+    Paciente: paciente,
+    Procedimento: procedimento,
   };
 };

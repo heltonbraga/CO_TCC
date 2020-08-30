@@ -11,7 +11,7 @@ export default class HCustomTable extends React.Component {
     if (!this.props.data) {
       return <CircularProgress />;
     }
-    const { rows, headCells, total } = this.props.data;
+    const { rows, headCells } = this.props.data;
     return (
       <div className="">
         <Paper className="">

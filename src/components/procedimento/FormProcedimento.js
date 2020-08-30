@@ -28,7 +28,6 @@ class FormProcedimento extends React.Component {
   }
 
   initForm = (data) => {
-    console.log(data.data);
     this.setState({
       procedimento: data.data,
       page: 1,

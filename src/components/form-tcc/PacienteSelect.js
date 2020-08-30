@@ -13,8 +13,20 @@ class PacienteSelect extends React.Component {
   state = { pacientes: [], inputKey: null, paciente: null, showSubForm: false };
 
   componentDidMount() {
-    getAllPacientes(1, 10000, "nome-asc", this.props.setToken, this.loadPacientes, this.showError);
-    if (this.props.selected) {
+    if (!this.props.readOnly) {
+      getAllPacientes(
+        1,
+        10000,
+        "nome-asc",
+        this.props.setToken,
+        this.loadPacientes,
+        this.showError
+      );
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.props.selected && !this.state.paciente) {
       this.setState({ paciente: this.props.selected });
     }
   }
@@ -80,24 +92,27 @@ class PacienteSelect extends React.Component {
               )}
               onChange={(e, val) => this.onSelect(val)}
               onInputChange={(e, val) => this.setState({ inputKey: val })}
+              disabled={this.props.readOnly}
             />
-            <div className="plusDiv">
-              <Tooltip title="novo">
-                <AddCircleOutlineIcon
-                  color={pac === null ? "primary" : "disabled"}
-                  onClick={(e) => this.setState({ showSubForm: pac === null })}
-                />
-              </Tooltip>
-              {this.state.showSubForm && (
-                <FormPaciente
-                  dialog={true}
-                  callback={this.subFormResult}
-                  token={this.props.setToken}
-                  sugestao={this.state.inputKey}
-                  paciente={this.state.paciente}
-                />
-              )}
-            </div>
+            {!this.props.readOnly && (
+              <div className="plusDiv">
+                <Tooltip title="novo">
+                  <AddCircleOutlineIcon
+                    color={pac === null ? "primary" : "disabled"}
+                    onClick={(e) => this.setState({ showSubForm: pac === null })}
+                  />
+                </Tooltip>
+                {this.state.showSubForm && (
+                  <FormPaciente
+                    dialog={true}
+                    callback={this.subFormResult}
+                    token={this.props.setToken}
+                    sugestao={this.state.inputKey}
+                    paciente={this.state.paciente}
+                  />
+                )}
+              </div>
+            )}
           </Grid>
         </Grid>
         <Grid container justify="center">
@@ -109,15 +124,17 @@ class PacienteSelect extends React.Component {
                 </p>
               )}
             </Grid>
-            <Grid item>
-              {pac && (
-                <div style={{ marginLeft: "10px" }}>
-                  <Tooltip title="editar">
-                    <EditIcon color="primary" onClick={this.editPaciente} />
-                  </Tooltip>
-                </div>
-              )}
-            </Grid>
+            {!this.props.readOnly && (
+              <Grid item>
+                {pac && (
+                  <div style={{ marginLeft: "10px" }}>
+                    <Tooltip title="editar">
+                      <EditIcon color="primary" onClick={this.editPaciente} />
+                    </Tooltip>
+                  </div>
+                )}
+              </Grid>
+            )}
           </div>
         </Grid>
       </Grid>

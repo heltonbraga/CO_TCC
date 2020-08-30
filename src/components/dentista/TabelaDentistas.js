@@ -1,14 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
 import { CircularProgress, Dialog } from "@material-ui/core";
-import { getAllDentistas, getDentistasByNome, deleteDentista } from "../Api";
+import { getAllDentistas, getDentistasByNome, getDentista, deleteDentista } from "../Api";
 import HDataTable from "../HDataTable/HDataTable";
 import { setMessage, setTela } from "../../actions";
-import { mapDentistaToExcel } from "../form-tcc/dataFormat";
-import HDialog from "./HDialog";
-import * as FileSaver from "file-saver";
-import * as XLSX from "xlsx";
-import PdfDentista from "./PdfDentista";
+import { mapDentistaToExcel, mapDentistaToPdf } from "../form-tcc/dataFormat";
+import HDialog from "../HDataTable/HDialog";
+import { toExcel, PdfDialog } from "../HDataTable/ExportToFile";
 
 class TabelaDentistas extends React.Component {
   state = {
@@ -59,7 +57,13 @@ class TabelaDentistas extends React.Component {
 
   getDentistaHeader = () => {
     return [
-      { id: "nr_cro", numeric: false, disablePadding: false, label: "CRO", style: { width: 50, maxWidth: "10%" } },
+      {
+        id: "nr_cro",
+        numeric: false,
+        disablePadding: false,
+        label: "CRO",
+        style: { width: 50, maxWidth: "10%" },
+      },
       { id: "nome", numeric: false, disablePadding: false, label: "Nome" },
     ];
   };
@@ -190,22 +194,13 @@ class TabelaDentistas extends React.Component {
   };
 
   table_exportCallback = (res) => {
-    if (!res || !res.data || !res.data.registros || res.data.registros.length === 0) {
-      this.props.setMessage({ color: "warning", text: "Nenhum registro gerado!" });
-      this.setState({ dataExport: [] });
-    }
-    let data = res.data.registros.map((d) => {
-      return mapDentistaToExcel(d);
-    });
-    console.log(data);
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const arquivo = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-    });
-    FileSaver.saveAs(arquivo, "planilha.xlsx");
-    this.setState({ wait: false });
+    toExcel(
+      res.data.registros,
+      "dentistas",
+      mapDentistaToExcel,
+      () => this.setState({ wait: false }),
+      (msg) => this.table_exportError(msg)
+    );
   };
 
   table_exportError = (err) => {
@@ -245,6 +240,17 @@ class TabelaDentistas extends React.Component {
       : {};
   };
 
+  renderDelDialogContent = () => {
+    const data = this.getDentistaSelecionado();
+    return (
+      <div>
+        A deleção do cadastro de um dentista é um procedimento irreversível e pode impactar na
+        agenda de atendimentos. Deseja confirmar a deleção do cadastro do dentista
+        <b>{" " + data.Pessoa.nome}</b> - CRO <b>{data.nr_cro}</b> ?
+      </div>
+    );
+  };
+
   render() {
     return (
       <div>
@@ -261,19 +267,25 @@ class TabelaDentistas extends React.Component {
         {this.state.wait && <CircularProgress />}
         {this.state.delDialogKey && (
           <HDialog
-            data={this.getDentistaSelecionado()}
+            title="Leia com atenção!"
+            contentRender={this.renderDelDialogContent}
             open={this.state.delDialogOpen}
             onClose={(e) => this.setState({ delDialogOpen: false })}
-            onCancel={(e) => this.setState({ delDialogOpen: false })}
-            onConfirm={this.dialog_onConfirm}
+            onPrimary={(e) => this.setState({ delDialogOpen: false })}
+            primaryLabel="Cancelar"
+            onSecondary={this.dialog_onConfirm}
+            secondaryLabel="Deletar"
           />
         )}
         {this.state.pdfDialogKey && (
-          <PdfDentista
-            idDentista={this.state.pdfDialogKey}
+          <PdfDialog
+            idEntidade={this.state.pdfDialogKey}
             idUser={this.props.perfil.id}
-            setToken={this.props.setToken}
-            onClose={(e) => this.setState({ pdfDialogKey: null })}
+            token={this.props.setToken}
+            getEntidade={getDentista}
+            mapping={mapDentistaToPdf}
+            fileName={"dentista_" + this.state.pdfDialogKey}
+            onClose={() => this.setState({ pdfDialogKey: null })}
           />
         )}
         <HDataTable

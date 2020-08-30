@@ -52,7 +52,6 @@ class FormAtendimento extends React.Component {
   };
 
   initForm = (data) => {
-    console.log(data.data);
     this.setState({
       atendimento: data.data,
       page: 1,
@@ -65,11 +64,11 @@ class FormAtendimento extends React.Component {
   };
 
   showSuccess = (res, dispatch) => {
+    dispatch(reset("wizard_atd"));
     this.props.setMessage({
       color: "primary",
       text: this.props.idAtendimento ? "Atendimento atualizado!" : "Atendimento marcado!",
     });
-    dispatch(reset("wizard_atd"));
     this.props.setTela("");
   };
 
@@ -82,13 +81,11 @@ class FormAtendimento extends React.Component {
   };
 
   onSubmit = (values, dispatch) => {
-    console.log(values);
     const data = mapAtendimentoFormToRequest(
       values,
       this.props.idAtendimento,
       this.props.perfil.id
     );
-    console.log(data);
     this.props.idAtendimento
       ? remarcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch)
       : marcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch);
@@ -146,6 +143,7 @@ class FormAtendimento extends React.Component {
             stepCount={stepCount}
             atendimento={dentData}
             readOnly={this.props.readOnly}
+            mayViewLog={this.props.perfil.perfil === "administrador"}
           />
         )}
         {page === 2 && (

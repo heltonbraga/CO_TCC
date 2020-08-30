@@ -7,7 +7,6 @@ import { Container, Button, Nav, Alert } from "reactstrap";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { getPerfil } from "./components/Api";
-
 import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Menu from "./components/Menu";

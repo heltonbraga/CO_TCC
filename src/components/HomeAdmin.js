@@ -2,16 +2,16 @@ import React from "react";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { setTela } from "../actions";
-import TabelaDentistas from "./admin-dentista/TabelaDentistas";
-import FormDentista from "./admin-dentista/FormDentista";
-import TabelaAuxiliares from "./admin-auxiliar/TabelaAuxiliares";
-import FormAuxiliar from "./admin-auxiliar/FormAuxiliar";
+import TabelaDentistas from "./dentista/TabelaDentistas";
+import FormDentista from "./dentista/FormDentista";
+import TabelaAuxiliares from "./auxiliar/TabelaAuxiliares";
+import FormAuxiliar from "./auxiliar/FormAuxiliar";
 import TabelaPacientes from "./paciente/TabelaPacientes";
 import FormPaciente from "./paciente/FormPaciente";
-import TabelaProcedimentos from "./admin-procedimento/TabelaProcedimentos";
-import FormProcedimento from "./admin-procedimento/FormProcedimento";
-import TabelaAtendimentos from "./admin-atendimento/TabelaAtendimentos";
-import FormAtendimento from "./admin-atendimento/FormAtendimento";
+import TabelaProcedimentos from "./procedimento/TabelaProcedimentos";
+import FormProcedimento from "./procedimento/FormProcedimento";
+import TabelaAtendimentos from "./atendimento/TabelaAtendimentos";
+import FormAtendimento from "./atendimento/FormAtendimento";
 import logo from "./img/logo_md.png";
 
 class HomeAdmin extends React.Component {

@@ -24,14 +24,32 @@ let AtdVaga = (props) => {
   }
 
   React.useEffect(() => {
-    if (!props.dentista) {
+    if (!props.dentista && !props.readOnly) {
       props.change("dentista", fake);
     }
   }, []);
 
   React.useEffect(() => {
-    if (!ignorar) {
-      console.log("reloading...");
+    if (!props.atendimento || props.vaga) {
+      return;
+    };
+    setIgnorar(true);
+    let a = props.atendimento;
+    props.change("dentista", props.dentistas.filter((p) => p.id === a.Dentista.id)[0]);
+    props.change("procedimento", props.procedimentos.filter((p) => p.id === a.Procedimento.id)[0]);
+    if (props.readOnly) {
+      setDia(moment(a.vaga).format("YYYY-MM-DD"));
+      let vaga = {
+        horario: a.vaga,
+        nome: a.Dentista.Pessoa.nome,
+      };
+      props.change("vaga", vaga);
+      setVagas([vaga]);
+    }
+  }, [props.atendimento]);
+
+  React.useEffect(() => {
+    if (!ignorar && !props.readOnly) {
       reloadVagas();
     }
     setIgnorar(false);
@@ -71,7 +89,6 @@ let AtdVaga = (props) => {
   const onDialogResult = (result) => {
     if (result) {
       setIgnorar(true);
-      console.log(result);
       let id = parseInt(result.dentista);
       let dentista = props.dentistas.filter((d) => d.id === id)[0];
       let vaga = {
@@ -81,7 +98,6 @@ let AtdVaga = (props) => {
         procedimento_id: props.procedimento.id,
         horario: result.opcao.horario,
       };
-      console.log(vaga);
       setVagas([vaga]);
       setDia(result.opcao.horario.slice(0, 10));
       props.change("vaga", vaga);
@@ -138,37 +154,40 @@ let AtdVaga = (props) => {
                   reloadVagas(e.target.value);
                 }
               }}
+              disabled={props.readOnly}
             />
           </div>
           <Field name="vaga" type={"combo-" + off} component={renderField} label="Horário">
             {vagas.map((v, i) => (
               <MenuItem key={i} value={v}>
-                <ListItemText primary={v.horario + " - " + v.nome} />
+                <ListItemText primary={moment(v.horario).format("HH:mm") + " - " + v.nome} />
               </MenuItem>
             ))}
           </Field>
         </Grid>
-        <Grid container justify="center">
-          <div style={{ paddingTop: 15 }}>
-            <Button
-              disabled={!props.procedimento}
-              variant="contained"
-              color="default"
-              onClick={(e) => setDialog(true)}
-            >
-              Buscar mais horários
-            </Button>
-          </div>
-          {dialog && (
-            <DialogVaga
-              callback={onDialogResult}
-              dentista={props.dentista.id}
-              procedimento={props.procedimento.id}
-              token={props.token}
-              listaDentistas={listaDentistas}
-            />
-          )}
-        </Grid>
+        {!props.readOnly && (
+          <Grid container justify="center">
+            <div style={{ paddingTop: 15 }}>
+              <Button
+                disabled={!props.procedimento}
+                variant="contained"
+                color="default"
+                onClick={(e) => setDialog(true)}
+              >
+                Buscar mais horários
+              </Button>
+            </div>
+            {dialog && (
+              <DialogVaga
+                callback={onDialogResult}
+                dentista={props.dentista.id}
+                procedimento={props.procedimento.id}
+                token={props.token}
+                listaDentistas={listaDentistas}
+              />
+            )}
+          </Grid>
+        )}
         <Grid container justify="center"></Grid>
         <Grid container justify="center">
           <WizButtons
@@ -185,9 +204,9 @@ let AtdVaga = (props) => {
 };
 
 AtdVaga = reduxForm({
-  form: "wizard_atd", //                 <------ same form name
-  destroyOnUnmount: false, //        <------ preserve form data
-  forceUnregisterOnUnmount: true, // <------ unregister fields on unmount
+  form: "wizard_atd",
+  destroyOnUnmount: false,
+  forceUnregisterOnUnmount: true,
   validate,
   enableReinitialize: true,
 })(AtdVaga);
@@ -196,9 +215,11 @@ const selector = formValueSelector("wizard_atd");
 AtdVaga = connect((state) => {
   const dentista = selector(state, "dentista");
   const procedimento = selector(state, "procedimento");
+  const vaga = selector(state, "vaga");
   return {
     dentista,
     procedimento,
+    vaga,
   };
 })(AtdVaga);
 

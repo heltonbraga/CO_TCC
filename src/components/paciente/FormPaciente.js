@@ -59,7 +59,6 @@ class FormPaciente extends React.Component {
   loadPaciente = (res, paciente) => {
     const pac = res ? res.data : paciente;
     const data = mapPacienteResponseToForm(pac);
-    console.log(data);
     this.setState({
       wait: false,
       idPaciente: data.id,

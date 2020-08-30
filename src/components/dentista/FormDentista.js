@@ -1,24 +1,26 @@
 import React from "react";
 import { connect } from "react-redux";
 import { reset } from "redux-form";
-import { getBancos, createAuxiliar, getAuxiliar, updateAuxiliar } from "../Api";
+import { getBancos, getProcedimentos, createDentista, getDentista, updateDentista } from "../Api";
 import { setMessage, setTela } from "../../actions";
 import { CircularProgress, Dialog, Typography } from "@material-ui/core";
 import Identificacao from "../form-tcc/Identificacao";
 import Contato from "../form-tcc/Contato";
 import Endereco from "../form-tcc/Endereco";
 import DadosBancarios from "../form-tcc/DadosBancarios";
-import DadosAuxiliar from "../form-tcc/DadosAuxiliar";
-import { mapAuxiliarFormToRequest, mapAuxiliarResponseToForm } from "../form-tcc/dataFormat";
+import DadosDentista from "../form-tcc/DadosDentista";
+import ProcDispDentista from "../form-tcc/ProcDispDentista";
+import { mapDentistaFormToRequest, mapDentistaResponseToForm } from "../form-tcc/dataFormat";
 
-class FormAuxiliar extends React.Component {
+class FormDentista extends React.Component {
   state = { page: 0, wait: false };
 
   componentDidMount() {
     getBancos(this.loadBancos, this.showError);
-    if (this.props.idAuxiliar) {
-      getAuxiliar(
-        this.props.idAuxiliar,
+    getProcedimentos(this.loadProcedimentos, this.showError);
+    if (this.props.idDentista) {
+      getDentista(
+        this.props.idDentista,
         this.props.perfil.id,
         this.props.setToken,
         this.initForm,
@@ -30,15 +32,18 @@ class FormAuxiliar extends React.Component {
   }
 
   initForm = (data) => {
-    console.log(data.data);
     this.setState({
-      auxiliar: data.data,
+      dentista: data.data,
       page: 1,
     });
   };
 
   loadBancos = (res) => {
     this.setState({ bancos: res.data.registros });
+  };
+
+  loadProcedimentos = (res) => {
+    this.setState({ procedimentos: res.data.registros });
   };
 
   showError = (err) => {
@@ -49,7 +54,7 @@ class FormAuxiliar extends React.Component {
   showSuccess = (res, dispatch) => {
     this.props.setMessage({
       color: "primary",
-      text: this.props.idAuxiliar ? "Cadastro atualizado!" : "Cadastro realizado!",
+      text: this.props.idDentista ? "Cadastro atualizado!" : "Cadastro realizado!",
     });
     dispatch(reset("wizard"));
     this.props.setTela("");
@@ -64,10 +69,10 @@ class FormAuxiliar extends React.Component {
   };
 
   onSubmit = (values, dispatch) => {
-    const data = mapAuxiliarFormToRequest(values, this.props.idAuxiliar, this.props.perfil.id);
-    this.props.idAuxiliar
-      ? updateAuxiliar(data, this.props.setToken, this.showSuccess, this.showError, dispatch)
-      : createAuxiliar(data, this.props.setToken, this.showSuccess, this.showError, dispatch);
+    const data = mapDentistaFormToRequest(values, this.props.idDentista, this.props.perfil.id);
+    this.props.idDentista
+      ? updateDentista(data, this.props.setToken, this.showSuccess, this.showError, dispatch)
+      : createDentista(data, this.props.setToken, this.showSuccess, this.showError, dispatch);
     this.setState({ wait: true });
   };
 
@@ -77,12 +82,12 @@ class FormAuxiliar extends React.Component {
 
   render() {
     const { page } = this.state;
-    const stepCount = 5;
-    const dentData = mapAuxiliarResponseToForm(this.state.auxiliar);
+    const stepCount = 6;
+    const dentData = mapDentistaResponseToForm(this.state.dentista);
     return (
       <div className="WizForm">
         <Typography style={{ textAlign: "center" }} variant="h5" component="div">
-          Cadastro de auxiliar
+          Cadastro de dentista
         </Typography>
         <div> </div>
         {page === 0 && <CircularProgress />}
@@ -143,7 +148,18 @@ class FormAuxiliar extends React.Component {
           />
         )}
         {page === 5 && (
-          <DadosAuxiliar
+          <DadosDentista
+            previousPage={this.previousPage}
+            onSubmit={this.nextPage}
+            onCancel={this.onCancel}
+            stepNumber={5}
+            stepCount={stepCount}
+            dentista={dentData}
+            readOnly={this.props.readOnly}
+          />
+        )}
+        {page === 6 && (
+          <ProcDispDentista
             previousPage={this.previousPage}
             onSubmit={
               this.props.readOnly
@@ -154,9 +170,10 @@ class FormAuxiliar extends React.Component {
                 : this.onSubmit
             }
             onCancel={this.onCancel}
-            stepNumber={5}
+            stepNumber={6}
             stepCount={stepCount}
-            auxiliar={dentData}
+            procedimentos={this.state.procedimentos}
+            dentista={dentData}
             readOnly={this.props.readOnly}
           />
         )}
@@ -174,4 +191,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { setMessage, setTela })(FormAuxiliar);
+export default connect(mapStateToProps, { setMessage, setTela })(FormDentista);
