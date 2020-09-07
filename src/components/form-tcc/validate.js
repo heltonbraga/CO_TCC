@@ -49,6 +49,22 @@ export const validate = (values) => {
     errors.vaga = MSG_REQUIRED;
   }
 
+  if (!values.idAnamnese) {
+    errors.idAnamnese = MSG_REQUIRED;
+  }
+
+  if (!values.alergia) {
+    errors.alergia = MSG_REQUIRED;
+  }
+
+  if (!values.tipoSanguineo) {
+    errors.tipoSanguineo = MSG_REQUIRED;
+  }
+
+  if (!values.pressaoArterial) {
+    errors.pressaoArterial = MSG_REQUIRED;
+  }
+
   if (!values.convenio) {
     errors.convenio = MSG_REQUIRED;
   }

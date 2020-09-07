@@ -190,6 +190,18 @@
   color: firebrick;
 }
 
+.divHist {
+  max-width: 500px;
+  margin: 0px auto;
+}
+
+.listProntuario {
+  max-height: 300px;
+  max-width: 500px;
+  margin: 0px auto;
+  overflow: auto;
+}
+
 @media (max-width: 600px) {
   .desk {
     display: none;

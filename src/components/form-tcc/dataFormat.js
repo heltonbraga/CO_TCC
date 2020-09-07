@@ -441,6 +441,9 @@ export const mapPacienteResponseToForm = (data) => {
     email: d.Pessoa.email,
     tel1: formatar(d.Pessoa.nr_tel, "cell"),
     situacao: d.dm_situacao,
+    prontuarios: d.Prontuarios,
+    anamnese: d.Anamnese,
+    plano_tratamento: d.plano_tratamento,
   };
   return paciente;
 };
@@ -573,5 +576,41 @@ export const mapAtendimentoResponseToForm = (data) => {
     Dentista: dentista,
     Paciente: paciente,
     Procedimento: procedimento,
+  };
+};
+
+export const mapAnamneseFormToRequest = (formData, idAnamnese, idPaciente, idUser) => {
+  return {
+    id: idAnamnese,
+    user: idUser,
+    paciente_id: idPaciente,
+    dm_alergia: formData.alergia,
+    de_alergia: formData.txtAlergia,
+    dm_pressao: formData.pressaoArterial,
+    dm_sangue: formData.tipoSanguineo,
+    de_medicamento: formData.medicamentos,
+    observacao: formData.observacao,
+  };
+};
+
+export const mapProntuarioFormToRequest = (formData, paciente, dentista, atendimento) => {
+  const pac = { id: paciente.id, plano_tratamento: formData.plano };
+  let prontuarios = [];
+  formData.novosProntuarios.map((n) =>
+    prontuarios.push({
+      Exames: n.exames,
+      dt_horario: n.dt_horario,
+      dentista_id: n.dentista_id,
+      paciente_id: paciente.id,
+      Paciente: paciente,
+      Dentista: dentista,
+      anotacao: n.anotacao,
+    })
+  );
+  return {
+    user: dentista.id,
+    paciente: pac,
+    prontuarios: prontuarios,
+    atendimento: atendimento,
   };
 };

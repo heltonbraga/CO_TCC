@@ -15,6 +15,7 @@ const Procedimento = (props) => {
     props.change("nome", props.procedimento.nome);
     props.change("duracao", props.procedimento.duracao);
     props.change("tipo", props.procedimento.tipo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.procedimento]);
 
   const off = props.readOnly ? "-" : "";

@@ -14,6 +14,7 @@ const Contato = (props) => {
     props.change("email", props.pessoa.email);
     props.change("tel1", props.pessoa.tel1);
     props.change("tel2", props.pessoa.tel2);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.pessoa]);
 
   const off = props.readOnly ? "-" : "";

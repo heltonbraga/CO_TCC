@@ -61,6 +61,7 @@ const Endereco = (props) => {
     props.change("cidade", props.pessoa.cidade);
     props.change("endereco", props.pessoa.endereco);
     props.change("complemento", props.pessoa.complemento);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.pessoa]);
 
   const off = props.readOnly ? "-" : "";

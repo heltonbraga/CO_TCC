@@ -13,7 +13,6 @@
 .actionsDropdown {
   padding: 0px;
   margin: 0px;
-  max-height: 60px;
 }
 
 .actionsDiv {
@@ -31,6 +30,5 @@
 
   .actionsDiv {
     margin-left: auto;
-    width: fit-content;
   }
 }

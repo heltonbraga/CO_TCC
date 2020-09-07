@@ -6,7 +6,7 @@ import { CircularProgress } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 
 class Menu extends React.Component {
-  state = { menuAberto: true };
+  state = { menuAberto: this.props.perfil && this.props.perfil.perfil !== "paciente" };
 
   toggleMenu = () => {
     this.setState({ menuAberto: !this.state.menuAberto });

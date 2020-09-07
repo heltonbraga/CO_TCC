@@ -7,6 +7,7 @@ import renderField from "./renderField";
 import WizButtons from "./WizButtons";
 import PacienteSelect from "./PacienteSelect";
 import DialogLog from "./DialogLog";
+import { getPaciente } from "../Api";
 
 let AtdPaciente = (props) => {
   const convenios = [
@@ -30,12 +31,25 @@ let AtdPaciente = (props) => {
     setPaciente(pac);
   };
 
+  const loadPaciente = (res) => {
+    props.change("paciente", res.data);
+    setPaciente(res.data);
+  };
+
+  const showError = (err) => {
+    console.log(err);
+  };
+
   const off = props.readOnly ? "-" : "";
 
   React.useEffect(() => {
     if (!props.convenio) {
       props.change("convenio", convenios[0]);
     }
+    if (props.fixedPaciente) {
+      getPaciente(props.fixedPaciente, null, props.token, loadPaciente, showError);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
@@ -45,6 +59,7 @@ let AtdPaciente = (props) => {
     props.change("convenio", props.atendimento.convenio);
     props.change("paciente", props.atendimento.Paciente);
     setPaciente(props.atendimento.Paciente);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.atendimento]);
 
   return (
@@ -53,7 +68,7 @@ let AtdPaciente = (props) => {
         <PacienteSelect
           onSelect={selPaciente}
           selected={paciente}
-          readOnly={props.readOnly || !!props.atendimento}
+          readOnly={props.readOnly || !!props.atendimento || !!props.fixedPaciente}
         />
         <Field name="convenio" type={"combo-" + off} component={renderField} label="Convênio">
           {convenios.map((c, i) => (

@@ -29,6 +29,7 @@ export const PdfDialog = (props) => {
   React.useEffect(() => {
     props.getEntidade(props.idEntidade, props.idUser, props.token, gerarPdf, showError);
     setOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.idEntidade]);
 
   const showError = (err) => {

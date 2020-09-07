@@ -43,9 +43,10 @@ export default class DialogVaga extends React.Component {
     const last = diasComVaga[diasComVaga.length - 1];
     let day = first;
     while (moment(day).isSameOrBefore(last)) {
-      let vaga = data.data.filter((v) => v.dia === day.format("YYYY-MM-DD"));
+      let dayf = day.format("YYYY-MM-DD");
+      let vaga = data.data.filter((v) => v.dia === dayf);
       if (vaga.length === 0) {
-        vaga = [{ dia: day.format("YYYY-MM-DD"), turnos: [false, false, false], horarios: [] }];
+        vaga = [{ dia: dayf, turnos: [false, false, false], horarios: [] }];
       } else {
         let manha = vaga[0].horarios.some((h) => moment(h.horario).hour() < 12);
         let tarde = vaga[0].horarios.some(
@@ -90,7 +91,6 @@ export default class DialogVaga extends React.Component {
   };
 
   renderDiaSelecionado = () => {
-    const compacto = window.innerWidth <= 500;
     let dia = this.state.opcoes[0];
     return (
       <div className="dayDetail">

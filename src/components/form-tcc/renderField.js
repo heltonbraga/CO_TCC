@@ -32,6 +32,28 @@ const renderTextField = ({ input, label, touched, invalid, error, mask, readOnly
   );
 };
 
+const renderTextArea = ({ input, label, touched, invalid, error, mask, readOnly }) => {
+  return (
+    <div className="WizForm">
+      <TextField
+        multiline
+        rows={4}
+        label={label}
+        placeholder={label}
+        variant="outlined"
+        error={touched && invalid}
+        helperText={touched && error}
+        className="FormTextField"
+        onChange={(e) => {
+          input.onChange(e);
+        }}
+        disabled={readOnly}
+        {...input}
+      />
+    </div>
+  );
+};
+
 const renderSelectField = ({ input, label, touched, error, children, readOnly }) => {
   return (
     <div className="WizForm">
@@ -78,6 +100,9 @@ const renderField = (
   let readOnly = arType.length > 2;
   if (arType[0] === "text") {
     return renderTextField({ input, label, touched, invalid, error, mask, readOnly });
+  }
+  if (arType[0] === "textarea") {
+    return renderTextArea({ input, label, touched, invalid, error, mask, readOnly });
   }
   if (arType[0] === "combo") {
     return renderSelectField({ input, label, touched, error, children, readOnly });

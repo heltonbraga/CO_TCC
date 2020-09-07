@@ -4,8 +4,7 @@ import { reset } from "redux-form";
 import {
   marcarAtendimento,
   remarcarAtendimento,
-  getAtendimento,
-  getProcedimentos,
+  getProcedimentosLivres,
   getAllDentistas,
 } from "../Api";
 import { setMessage, setTela } from "../../actions";
@@ -14,11 +13,11 @@ import AtdPaciente from "../form-tcc/AtdPaciente";
 import AtdVaga from "../form-tcc/AtdVaga";
 import { mapAtendimentoFormToRequest, mapAtendimentoResponseToForm } from "../form-tcc/dataFormat";
 
-class FormAtendimento extends React.Component {
+class FormAtendimentoPaciente extends React.Component {
   state = { page: 0, wait: false };
 
   componentDidMount() {
-    getProcedimentos(this.loadProcedimentos, this.showError);
+    getProcedimentosLivres(this.loadProcedimentos, this.showError);
     getAllDentistas(
       1,
       1000,
@@ -28,17 +27,7 @@ class FormAtendimento extends React.Component {
       this.showError,
       null
     );
-    if (this.props.idAtendimento) {
-      getAtendimento(
-        this.props.idAtendimento,
-        this.props.perfil.id,
-        this.props.setToken,
-        this.initForm,
-        this.showError
-      );
-    } else {
-      this.nextPage();
-    }
+    this.nextPage();
   }
 
   loadDentistas = (res) => {
@@ -67,9 +56,9 @@ class FormAtendimento extends React.Component {
     dispatch(reset("wizard_atd"));
     this.props.setMessage({
       color: "primary",
-      text: this.props.idAtendimento ? "Atendimento atualizado!" : "Atendimento marcado!",
+      text: this.props.atendimento ? "Atendimento atualizado!" : "Atendimento marcado!",
     });
-    this.props.setTela("");
+    this.props.setTela("ATD_OK");
   };
 
   nextPage = () => {
@@ -86,6 +75,8 @@ class FormAtendimento extends React.Component {
       this.props.idAtendimento,
       this.props.perfil.id
     );
+    console.log(data);
+    console.log(this.props.idAtendimento);
     this.props.idAtendimento
       ? remarcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch)
       : marcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch);
@@ -103,7 +94,7 @@ class FormAtendimento extends React.Component {
   render() {
     const { page } = this.state;
     const stepCount = 2;
-    const dentData = mapAtendimentoResponseToForm(this.state.atendimento);
+    const dentData = mapAtendimentoResponseToForm(this.props.atendimento);
     return (
       <div className="WizForm">
         <Typography style={{ textAlign: "center" }} variant="h5" component="div">
@@ -141,9 +132,12 @@ class FormAtendimento extends React.Component {
             onCancel={this.onCancel}
             stepNumber={1}
             stepCount={stepCount}
+            paciente={this.state.paciente}
             atendimento={dentData}
-            readOnly={this.props.readOnly}
-            mayViewLog={this.props.perfil.perfil === "administrador"}
+            fixedPaciente={this.props.perfil.id}
+            token={this.props.setToken}
+            readOnly={false}
+            mayViewLog={false}
           />
         )}
         {page === 2 && (
@@ -161,13 +155,13 @@ class FormAtendimento extends React.Component {
             stepNumber={2}
             stepCount={stepCount}
             atendimento={dentData}
+            limited={true}
             procedimentos={this.state.procedimentos}
             dentistas={this.state.dentistas}
             token={this.props.setToken}
-            readOnly={this.props.readOnly}
+            readOnly={false}
             onWait={this.onWait}
             showError={this.showError}
-            perfil={this.props.perfil}
           />
         )}
       </div>
@@ -184,4 +178,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { setMessage, setTela })(FormAtendimento);
+export default connect(mapStateToProps, { setMessage, setTela })(FormAtendimentoPaciente);

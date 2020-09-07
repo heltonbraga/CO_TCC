@@ -25,14 +25,22 @@ let AtdVaga = (props) => {
 
   React.useEffect(() => {
     if (!props.dentista && !props.readOnly) {
-      props.change("dentista", fake);
+      let den = fake;
+      if (props.perfil && props.perfil.perfil === "dentista") {
+        let arrden = listaDentistas.filter((d) => d.id === props.perfil.id);
+        if (arrden && arrden.length > 0) {
+          den = arrden[0];
+        }
+      }
+      props.change("dentista", den);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     if (!props.atendimento || props.vaga) {
       return;
-    };
+    }
     setIgnorar(true);
     let a = props.atendimento;
     props.change("dentista", props.dentistas.filter((p) => p.id === a.Dentista.id)[0]);
@@ -46,6 +54,7 @@ let AtdVaga = (props) => {
       props.change("vaga", vaga);
       setVagas([vaga]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.atendimento]);
 
   React.useEffect(() => {
@@ -53,6 +62,7 @@ let AtdVaga = (props) => {
       reloadVagas();
     }
     setIgnorar(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.procedimento, props.dentista]);
 
   const reloadVagas = (outroDia = dia) => {
@@ -165,7 +175,7 @@ let AtdVaga = (props) => {
             ))}
           </Field>
         </Grid>
-        {!props.readOnly && (
+        {!props.readOnly && !props.limited && (
           <Grid container justify="center">
             <div style={{ paddingTop: 15 }}>
               <Button

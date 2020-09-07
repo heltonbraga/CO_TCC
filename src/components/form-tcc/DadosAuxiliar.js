@@ -15,6 +15,7 @@ const DadosAuxiliar = (props) => {
     }
     props.change("cro", props.auxiliar.cro);
     props.change("formacao", props.auxiliar.formacao);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.auxiliar]);
 
   const off = props.readOnly ? "-" : "";

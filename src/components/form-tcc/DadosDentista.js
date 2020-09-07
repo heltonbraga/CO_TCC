@@ -14,6 +14,7 @@ const DadosDentistas = (props) => {
     props.change("cro", props.dentista.cro);
     props.change("liberacao", props.dentista.liberacao);
     props.change("bloqueio", props.dentista.bloqueio);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.dentista]);
 
   const off = props.readOnly ? "-" : "";

@@ -245,7 +245,7 @@ class TabelaPacientes extends React.Component {
           title="Pacientes"
           searchPlaceHolder="filtrar por nome..."
           onSearch={this.table_onSearch}
-          onExport={this.table_export}
+          onExport={this.props.perfil.perfil === "administrador" ? this.table_export : null}
           dataExport={this.state.dataExport}
           onSearchCancel={this.table_onSearchCancel}
           data={this.formatarDadosTabela()}

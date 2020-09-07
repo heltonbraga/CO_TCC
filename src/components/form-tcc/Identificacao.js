@@ -16,6 +16,7 @@ const Identificacao = (props) => {
     props.change("cpf", props.pessoa.cpf);
     props.change("nascimento", props.pessoa.nascimento);
     props.change("sexo", props.pessoa.sexo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.pessoa]);
 
   const off = props.readOnly ? "-" : "";

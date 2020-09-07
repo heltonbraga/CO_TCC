@@ -15,6 +15,7 @@ const DadosBancarios = (props) => {
     props.change("banco", props.pessoa.banco);
     props.change("agencia", props.pessoa.agencia);
     props.change("conta", props.pessoa.conta);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.pessoa]);
 
   const off = props.readOnly ? "-" : "";

@@ -49,6 +49,7 @@ const ProcDispDentista = (props) => {
     });
     props.change("horariosDisponiveis", paramDisp);
     setHorarios(paramDisp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.dentista]);
 
   const [habilitados, setHabilitados] = React.useState([]);

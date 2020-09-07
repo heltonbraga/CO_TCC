@@ -8,9 +8,10 @@ import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import RedoIcon from "@material-ui/icons/Redo";
+import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 
 export default class HTableRow extends React.Component {
-  state = { viewActions: false };
+  state = { viewActions: false, cell: window.innerWidth < 600 };
 
   renderIcon = (acao, disabledActions = []) => {
     const disabled = disabledActions.indexOf(acao) >= 0;
@@ -26,13 +27,16 @@ export default class HTableRow extends React.Component {
       return <RedoIcon style={disabled ? {} : { fill: "black" }} />;
     } else if (acao === "CONFIRMAR") {
       return <CheckIcon color={disabled ? "disabled" : "primary"} />;
+    } else if (acao === "INICIAR") {
+      return <PlayArrowIcon color={disabled ? "disabled" : "primary"} />;
     }
     return <CheckIcon color="primary" />;
   };
 
   renderActions = (row) => {
+    let tam = this.props.actions.length < 4 || !this.state.cell ? "medium" : "small";
     return (
-      <div className="actionsDiv" >
+      <div className="actionsDiv">
         {this.props.actions.map((action) => {
           return (
             <Tooltip title={action.tooltip} key={action.tooltip + row.key}>
@@ -40,6 +44,7 @@ export default class HTableRow extends React.Component {
                 key={action.tooltip + row.key}
                 aria-label={action.tooltip}
                 tooltip={action.tooltip}
+                size={tam}
                 onClick={(e) => {
                   this.setState({ viewActions: false });
                   action.call(e, row.key);
@@ -78,9 +83,7 @@ export default class HTableRow extends React.Component {
                 <DropdownToggle tag="span" data-toggle="dropdown">
                   <MoreVertIcon />
                 </DropdownToggle>
-                <DropdownMenu className="actionsDropdown">
-                  {this.renderActions(row)}
-                </DropdownMenu>
+                <DropdownMenu className="actionsDropdown">{this.renderActions(row)}</DropdownMenu>
               </Dropdown>
             </div>
             <div className="actionsPanel">{this.renderActions(row)}</div>

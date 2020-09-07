@@ -17,7 +17,6 @@ export const opcoesMenuReducer = (perfil) => {
     { perfil: "auxiliar", label: "Atendimentos", acao: "auxAtd" },
     { perfil: "auxiliar", label: "Pacientes", acao: "auxPac" },
     //
-    { perfil: "paciente", label: "Atendimento", acao: "pacAtd" },
   ];
 };
 

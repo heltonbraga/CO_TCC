@@ -1,81 +1,31 @@
 import React from "react";
 import { connect } from "react-redux";
 import moment from "moment";
-import { createPaciente, updatePaciente, getPaciente } from "../Api";
+import { createPaciente, updatePaciente, verificarUsuario } from "../Api";
 import { setMessage, setTela } from "../../actions";
-import {
-  CircularProgress,
-  Dialog,
-  Typography,
-  Grid,
-  TextField,
-  Button,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-} from "@material-ui/core";
+import ReactCodeInput from "react-code-input";
+import { CircularProgress, Typography, Grid, TextField, Button } from "@material-ui/core";
 import { Alert } from "reactstrap";
-import {
-  formatar,
-  mapPacienteFormToRequest,
-  mapPacienteResponseToForm,
-} from "../form-tcc/dataFormat";
+import { formatar, mapPacienteFormToRequest } from "../form-tcc/dataFormat";
 import { validarCPF } from "../form-tcc/validate";
 
 const obrigatorios = ["nome", "cpf", "email", "tel1"];
-const situacoes = [
-  "em tratamento",
-  "pendente exames",
-  "pendente retorno",
-  "agendado",
-  "sem vinculo",
-  "sem resposta",
-];
 
-class FormPaciente extends React.Component {
+class FormPacienteExt extends React.Component {
   state = {
     wait: false,
+    mode: "CAD",
     nome: "",
     cpf: "",
     nascimento: "",
     email: "",
     tel1: "",
-    situacao: situacoes[0],
     erros: [],
   };
 
   componentDidMount() {
-    if (this.props.idPaciente) {
-      getPaciente(
-        this.props.idPaciente,
-        this.props.perfil.id,
-        this.props.setToken,
-        this.loadPaciente,
-        this.showError
-      );
-      this.setState({ wait: true });
-    } else if (this.props.paciente) {
-      this.loadPaciente(null, this.props.paciente);
-    } else if (this.props.sugestao) {
-      this.setState({ nome: this.props.sugestao });
-    }
+    this.setState({ email: this.props.perfil.email });
   }
-
-  loadPaciente = (res, paciente) => {
-    const pac = res ? res.data : paciente;
-    const data = mapPacienteResponseToForm(pac);
-    this.setState({
-      wait: false,
-      idPaciente: data.id,
-      nome: data.nome,
-      cpf: data.cpf,
-      nascimento: data.nascimento,
-      email: data.email,
-      tel1: data.tel1,
-      situacao: data.situacao,
-    });
-  };
 
   showError = (err) => {
     this.setState({ wait: false, errorMessage: err });
@@ -84,9 +34,9 @@ class FormPaciente extends React.Component {
   showSuccess = (res) => {
     this.props.setMessage({
       color: "primary",
-      text: this.props.idPaciente ? "Cadastro atualizado!" : "Cadastro realizado!",
+      text: this.props.paciente ? "Cadastro atualizado!" : "Cadastro realizado!",
     });
-    this.props.dialog ? this.props.callback(res.data.id) : this.props.setTela("");
+    this.props.setTela("LOAD");
   };
 
   onSubmit = () => {
@@ -98,10 +48,82 @@ class FormPaciente extends React.Component {
       { nome, cpf, nascimento, email, tel1, situacao },
       this.props.paciente ? this.props.paciente.id : this.props.idPaciente
     );
-    this.props.paciente || this.props.idPaciente
+    this.props.paciente
       ? updatePaciente(data, this.props.setToken, this.showSuccess, this.showError)
       : createPaciente(data, this.props.setToken, this.showSuccess, this.showError);
     this.setState({ wait: true });
+  };
+
+  goCheckToken = (value) => {
+    verificarUsuario(
+      value,
+      this.state.tel1.replace(/(\D)/g, ""),
+      this.props.setToken,
+      this.showTokenCheckResponse,
+      this.showTwilioResponse
+    );
+    this.setState({ wait: true });
+  };
+
+  goSendToken = () => {
+    verificarUsuario(
+      null,
+      this.state.tel1.replace(/(\D)/g, ""),
+      this.props.setToken,
+      this.showTwilioResponse,
+      this.showError
+    );
+    this.setState({ mode: "SMS" });
+  };
+
+  showTwilioResponse = (res) => {
+    //
+  };
+
+  showTokenCheckResponse = (res) => {
+    if (res) {
+      this.props.setMessage({ color: "primary", text: "Validado!" });
+      this.onSubmit();
+    }
+  };
+
+  handleCodeInputChange = (val) => {
+    this.setState({ code: val });
+  };
+
+  renderTokenInput = () => {
+    return (
+      <div>
+        <p>
+          Foi enviado um código de confirmação por SMS para o número de telefone informado, digite o
+          código no campo abaixo para prosseguir:
+        </p>
+        <ReactCodeInput
+          value={this.state.code}
+          type="number"
+          fields={4}
+          onChange={this.handleCodeInputChange}
+        />
+        <div style={{ marginTop: "30px" }}>
+          <Grid container justify="center" spacing={2}>
+            <Grid item>
+              <Button variant="contained" color="secondary" onClick={this.onCancel}>
+                Cancelar
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={(e) => this.goCheckToken(this.state.code)}
+              >
+                Validar
+              </Button>
+            </Grid>
+          </Grid>
+        </div>
+      </div>
+    );
   };
 
   validate = (e) => {
@@ -197,14 +219,8 @@ class FormPaciente extends React.Component {
                 label="Email"
                 placeholder="Email"
                 className="FormTextField"
-                error={erros.email !== null && erros.email !== undefined}
-                helperText={erros.email}
                 value={this.state.email}
-                onChange={(e) => {
-                  this.setState({ email: e.target.value });
-                }}
-                onBlur={this.validate}
-                disabled={this.props.readOnly}
+                disabled={true}
               />
               <TextField
                 id="tel1"
@@ -238,45 +254,9 @@ class FormPaciente extends React.Component {
                 onBlur={this.validate}
                 disabled={this.props.readOnly}
               />
-              {(this.props.paciente || this.props.idPaciente) && (
-                <FormControl className="WizFormControl">
-                  <InputLabel htmlFor="sitPac">Situação</InputLabel>
-                  <Select
-                    id="sitPac"
-                    className="FormTextField"
-                    value={this.state.situacao}
-                    onChange={(e) => {
-                      this.setState({ situacao: e.target.value });
-                    }}
-                    disabled={this.props.readOnly}
-                  >
-                    {situacoes.map((s, i) => (
-                      <MenuItem value={s} key={i}>
-                        {s}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
             </div>
           </Grid>
         </Grid>
-        {this.props.perfil.perfil === "dentista" && (
-          <div style={{ marginTop: "30px" }}>
-            <Button
-              variant="contained"
-              color="default"
-              onClick={(e) =>
-                this.props.setTela(
-                  "VIEW_PRONTUARIO:" +
-                    (!this.props.paciente ? this.props.idPaciente : this.props.paciente.id)
-                )
-              }
-            >
-              Prontuário
-            </Button>
-          </div>
-        )}
         <div style={{ marginTop: "30px" }}>
           <Grid container justify="center" spacing={2}>
             <Grid item>
@@ -288,7 +268,7 @@ class FormPaciente extends React.Component {
               <Button
                 variant="contained"
                 color={ok && !this.state.wait ? "primary" : "default"}
-                onClick={this.onSubmit}
+                onClick={this.goSendToken}
                 disabled={!ok || this.state.wait}
               >
                 Concluir
@@ -301,22 +281,18 @@ class FormPaciente extends React.Component {
   };
 
   onCancel = () => {
-    this.props.dialog ? this.props.callback() : this.props.setTela("");
-  };
-
-  renderDialog = () => {
-    return (
-      <Dialog open={true} keepMounted={true}>
-        {this.renderFields()}
-      </Dialog>
-    );
+    this.props.setTela("");
   };
 
   render() {
-    return this.props.dialog ? (
-      this.renderDialog()
-    ) : (
-      <div className="WizForm">{this.renderFields()}</div>
+    if (this.state.wait) {
+      return <CircularProgress />;
+    }
+    return (
+      <div className="WizForm">
+        {this.state.mode === "CAD" && this.renderFields()}
+        {this.state.mode === "SMS" && this.renderTokenInput()}
+      </div>
     );
   }
 }
@@ -330,4 +306,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { setMessage, setTela })(FormPaciente);
+export default connect(mapStateToProps, { setMessage, setTela })(FormPacienteExt);

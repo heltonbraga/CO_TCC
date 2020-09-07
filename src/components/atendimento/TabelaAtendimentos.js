@@ -37,7 +37,7 @@ class TabelaAtendimentos extends React.Component {
     motivoCancelamento: motivos[0],
     dialogKey: null,
     dia: moment().format("YYYY-MM-DD"),
-    dentista: 0,
+    dentista: this.props.perfil.perfil === "dentista" ? this.props.perfil.id : 0,
     dentistas: [],
     wait: false,
     compacto: window.innerWidth <= 500,
@@ -128,7 +128,25 @@ class TabelaAtendimentos extends React.Component {
       call: this.table_onCancelarAtd,
       icon: "CANCELAR",
     };
-    return [confirmar, remarcar, cancelar];
+    let iniciar = {
+      tooltip: "iniciar",
+      call: this.table_onIniciarAtd,
+      icon: "INICIAR",
+    };
+    return [confirmar, remarcar, cancelar, iniciar];
+  };
+
+  getDisabledActions = (sit) => {
+    let arr =
+      sit === "cancelado" || sit === "realizado"
+        ? ["CONFIRMAR", "REMARCAR", "CANCELAR", "INICIAR"]
+        : sit === "confirmado"
+        ? ["CONFIRMAR"]
+        : [];
+    if (this.props.perfil.perfil !== "dentista") {
+      arr.push("INICIAR");
+    }
+    return arr;
   };
 
   formatarDadosTabela = () => {
@@ -139,12 +157,7 @@ class TabelaAtendimentos extends React.Component {
     const rows = den.registros.map((d) => {
       return {
         key: d.id,
-        disabledActions:
-          d.dm_situacao === "cancelado" || d.dm_situacao === "realizado"
-            ? ["CONFIRMAR", "REMARCAR", "CANCELAR"]
-            : d.dm_situacao === "confirmado"
-            ? ["CONFIRMAR"]
-            : [],
+        disabledActions: this.getDisabledActions(d.dm_situacao),
         view: this.state.compacto
           ? [
               { value: moment(d.dt_horario).format("HH:mm"), align: "left" },
@@ -227,6 +240,15 @@ class TabelaAtendimentos extends React.Component {
   table_exportError = (err) => {
     this.props.setMessage({ color: "warning", text: err });
     this.setState({ wait: false });
+  };
+
+  table_onIniciarAtd = (event, key) => {
+    this.props.setTela(
+      "EDIT_PRONTUARIO:" +
+        this.state.atendimentos.registros.filter((a) => a.id === key)[0].Paciente.id +
+        ":" +
+        key
+    );
   };
 
   cancelarAtendimento = () => {
@@ -348,7 +370,7 @@ class TabelaAtendimentos extends React.Component {
         <p>Ao entrar em contato com o paciente, repasse as orientações pré-atendimento.</p>
         <span className="desk">
           <a
-            target="_blank"
+            target="_blank" rel="noopener noreferrer"
             href={"https://api.whatsapp.com/send?phone=+55" + contato + "&text=" + msg}
           >
             <Button style={{ backgroundColor: "#25d366", textDecoration: "none" }}>
@@ -375,6 +397,11 @@ class TabelaAtendimentos extends React.Component {
           options={this.state.dentistas}
           getOptionLabel={(option) => option.Pessoa.nome}
           style={{ width: 200, maxWidth: "45%" }}
+          value={
+            this.props.perfil.perfil === "dentista"
+              ? this.state.dentistas.filter((d) => d.id === this.state.dentista)[0]
+              : undefined
+          }
           renderInput={(params) => (
             <TextField
               {...params}
@@ -387,6 +414,7 @@ class TabelaAtendimentos extends React.Component {
             <Popper {...params} style={{ width: 400, maxWidth: "100%" }} placement="bottom-start" />
           )}
           onChange={(e, val) => this.onChangeDentista(val)}
+          disabled={this.props.perfil.perfil === "dentista"}
         />
         <TextField
           type="date"
@@ -442,7 +470,7 @@ class TabelaAtendimentos extends React.Component {
         )}
         <HCustomTable
           title="Atendimentos"
-          onExport={this.table_export}
+          onExport={this.props.perfil.perfil === "administrador" ? this.table_export : null}
           dataExport={this.state.dataExport}
           data={this.formatarDadosTabela()}
           onSelect={this.table_onSelect}

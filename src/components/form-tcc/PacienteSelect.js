@@ -53,7 +53,13 @@ class PacienteSelect extends React.Component {
 
   subFormResult = (paciente) => {
     if (paciente) {
-      getPaciente(paciente, this.props.setToken, this.loadPaciente, this.showError);
+      getPaciente(
+        paciente,
+        this.props.perfil.id,
+        this.props.setToken,
+        this.loadPaciente,
+        this.showError
+      );
       this.props.setMessage({
         color: "primary",
         text: "Cadastro realizado!",
