@@ -108,6 +108,7 @@ class FormProntuario extends React.Component {
                 onCancel={this.onCancel}
                 stepNumber={1}
                 stepCount={stepCount}
+                idAtendimento={this.props.idAtendimento}
                 paciente={this.state.paciente}
                 readOnly={this.props.readOnly}
                 setTela={this.props.setTela}

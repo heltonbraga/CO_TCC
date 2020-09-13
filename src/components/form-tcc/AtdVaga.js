@@ -68,7 +68,7 @@ let AtdVaga = (props) => {
   const reloadVagas = (outroDia = dia) => {
     if (props.procedimento) {
       getVagas(
-        props.dentista.id,
+        props.dentista ? props.dentista.id : 0,
         props.procedimento.id,
         outroDia,
         true,

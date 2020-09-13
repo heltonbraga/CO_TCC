@@ -44,7 +44,7 @@ class FormAnamnese extends React.Component {
       color: "primary",
       text: this.state.paciente.Anamnese ? "Anamnese atualizada!" : "Anamnese respondida!",
     });
-    this.props.setTela("EDIT_PRONTUARIO:" + this.props.idPaciente);
+    this.props.setTela("EDIT_PRONTUARIO:" + this.props.idPaciente + ":" + this.props.idAtendimento);
   };
 
   nextPage = () => {
@@ -72,7 +72,7 @@ class FormAnamnese extends React.Component {
   };
 
   onCancel = () => {
-    this.props.setTela("EDIT_PRONTUARIO:" + this.props.idPaciente);
+    this.props.setTela("EDIT_PRONTUARIO:" + this.props.idPaciente + ":" + this.props.idAtendimento);
   };
 
   render() {

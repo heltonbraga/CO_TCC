@@ -75,8 +75,6 @@ class FormAtendimentoPaciente extends React.Component {
       this.props.idAtendimento,
       this.props.perfil.id
     );
-    console.log(data);
-    console.log(this.props.idAtendimento);
     this.props.idAtendimento
       ? remarcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch)
       : marcarAtendimento(data, this.props.setToken, this.showSuccess, this.showError, dispatch);

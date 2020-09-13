@@ -47,7 +47,7 @@ const ProAnamnese = (props) => {
   };
 
   const handleAnamnese = () => {
-    props.setTela("EDIT_ANAMNESE:" + props.paciente.id);
+    props.setTela("EDIT_ANAMNESE:" + props.paciente.id+":"+props.idAtendimento);
   };
 
   return (

@@ -12,6 +12,7 @@ import TabelaProcedimentos from "./procedimento/TabelaProcedimentos";
 import FormProcedimento from "./procedimento/FormProcedimento";
 import TabelaAtendimentos from "./atendimento/TabelaAtendimentos";
 import FormAtendimento from "./atendimento/FormAtendimento";
+import FormRelatorio from "./relatorio/FormRelatorio";
 import logo from "./img/logo_md.png";
 
 class HomeAdmin extends React.Component {
@@ -28,6 +29,8 @@ class HomeAdmin extends React.Component {
           return <TabelaProcedimentos />;
         case "adminAtend":
           return <TabelaAtendimentos />;
+        case "adminRel":
+          return <FormRelatorio />;
         default:
           return (
             <div className="basicDiv">

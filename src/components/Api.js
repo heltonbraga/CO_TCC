@@ -303,16 +303,20 @@ export const updateProtuario = (data, token, onSuccess, onError) => {
     )
   );
   const updAtd = axios.patch(
-      "atendimentos/realizar",
-      { id: data.atendimento, user: data.user },
-      {
-        headers: { Authorization: "Bearer " + token },
-      }
-    );
+    "atendimentos/realizar",
+    { id: data.atendimento, user: data.user },
+    {
+      headers: { Authorization: "Bearer " + token },
+    }
+  );
   axios
     .all([updPlano, updAtd, ...newPront])
     .then((res) => onSuccess(res))
     .catch((err) => onError(digerirErro(err)));
+};
+
+export const getRelatorio = (inicio, fim, user, token, onSuccess, onError) => {
+  getRequest("relatorios", { inicio: inicio, fim: fim, user: user }, token, onSuccess, onError);
 };
 
 const patchRequest = (path, data, token, onSuccess, onError, extra = null) => {

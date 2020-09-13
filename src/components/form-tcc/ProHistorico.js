@@ -152,7 +152,7 @@ const ProHistorico = (props) => {
       anotacao: anotacao,
       dentista_id: props.perfil.id,
       paciente_id: props.paciente.id,
-      exames: exames,
+      Exames: exames,
     };
     let arr = lista;
     arr.push(reg);
@@ -179,32 +179,34 @@ const ProHistorico = (props) => {
           subheader={<ListSubheader component="div">Histórico</ListSubheader>}
           className="listProntuario"
         >
-          {lista.concat(props.paciente.prontuarios).map((p, i) => (
-            <span>
-              <ListItem key={i}>
-                <ListItemText
-                  primary={
-                    moment(p.dt_horario).format("DD/MM/YYYY HH:mm") +
-                    "h - Dr(a) " +
-                    getNomeDentista(p.dentista_id)
-                  }
-                  secondary={
-                    <React.Fragment>
-                      <span>{p.anotacao}</span>
-                      <br />
-                      {p.Exames &&
-                        p.Exames.map((exame, i) => (
-                          <a target="blank" href={exame.url} key={i}>
-                            {" [" + exame.descricao + "] "}
-                          </a>
-                        ))}
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-              <Divider variant="inset" component="li" key={"separador"+i} />
-            </span>
-          ))}
+          {lista.concat(props.paciente.prontuarios).map((p, i) => {
+            return (
+              <span key={i}>
+                <ListItem key={i}>
+                  <ListItemText
+                    primary={
+                      moment(p.dt_horario).format("DD/MM/YYYY HH:mm") +
+                      "h - Dr(a) " +
+                      getNomeDentista(p.dentista_id)
+                    }
+                    secondary={
+                      <React.Fragment>
+                        <span>{p.anotacao}</span>
+                        <br />
+                        {p.Exames &&
+                          p.Exames.map((exame, i) => (
+                            <a target="blank" href={exame.url} key={i}>
+                              {" [" + exame.descricao + "] "}
+                            </a>
+                          ))}
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" key={"separador" + i} />
+              </span>
+            );
+          })}
         </List>
       </div>
       {showSub && (

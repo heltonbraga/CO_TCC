@@ -596,17 +596,19 @@ export const mapAnamneseFormToRequest = (formData, idAnamnese, idPaciente, idUse
 export const mapProntuarioFormToRequest = (formData, paciente, dentista, atendimento) => {
   const pac = { id: paciente.id, plano_tratamento: formData.plano };
   let prontuarios = [];
-  formData.novosProntuarios.map((n) =>
-    prontuarios.push({
-      Exames: n.exames,
-      dt_horario: n.dt_horario,
-      dentista_id: n.dentista_id,
-      paciente_id: paciente.id,
-      Paciente: paciente,
-      Dentista: dentista,
-      anotacao: n.anotacao,
-    })
-  );
+  if (formData.novosProntuarios) {
+    formData.novosProntuarios.map((n) =>
+      prontuarios.push({
+        Exames: n.Exames,
+        dt_horario: n.dt_horario,
+        dentista_id: n.dentista_id,
+        paciente_id: paciente.id,
+        Paciente: paciente,
+        Dentista: dentista,
+        anotacao: n.anotacao,
+      })
+    );
+  }
   return {
     user: dentista.id,
     paciente: pac,

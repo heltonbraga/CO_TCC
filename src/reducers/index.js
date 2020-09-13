@@ -9,7 +9,6 @@ export const opcoesMenuReducer = (perfil) => {
     { perfil: "administrador", label: "Procedimentos", acao: "adminProc" },
     { perfil: "administrador", label: "Atendimentos", acao: "adminAtend" },
     { perfil: "administrador", label: "Relatório", acao: "adminRel" },
-    { perfil: "administrador", label: "Agenda", acao: "adminAgenda" },
     //
     { perfil: "dentista", label: "Atendimentos", acao: "dentAtd" },
     { perfil: "dentista", label: "Pacientes", acao: "dentPac" },

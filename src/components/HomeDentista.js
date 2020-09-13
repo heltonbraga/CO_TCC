@@ -48,7 +48,7 @@ class HomeDentista extends React.Component {
           <FormProntuario idPaciente={id[0]} idAtendimento={id[1]} readOnly={acao === "VIEW"} />
         );
       case "ANAMNESE":
-        return <FormAnamnese idPaciente={id[0]} readOnly={acao === "VIEW"} />;
+        return <FormAnamnese idPaciente={id[0]} idAtendimento={id[1]} readOnly={acao === "VIEW"} />;
       default:
         return <div>Dentista</div>;
     }
