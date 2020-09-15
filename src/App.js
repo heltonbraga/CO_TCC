@@ -62,6 +62,10 @@ function App(props) {
     return "";
   };
 
+  const onMarcar = () => {
+    loginWithRedirect({});
+  }
+
   return (
     <Router>
       <div className="App">
@@ -85,7 +89,7 @@ function App(props) {
             {messageAlert()}
           </Alert>
           <Switch>
-            <Route exact path="/" render={(props) => <Home />} />
+            <Route exact path="/" render={(props) => <Home onMarcar={onMarcar} />} />
             <ProtectedRoute path="/administrador" component={HomeAdmin} />
             <ProtectedRoute path="/dentista" component={HomeDentista} />
             <ProtectedRoute path="/auxiliar" component={HomeAuxiliar} />

@@ -33,7 +33,9 @@ class Home extends React.Component {
             <h3>Cuidamos dos seus dentes da 1ª infância à 3ª idade.</h3>
           </Col>
           <Col xs={12} md={4}>
-            <Button color="primary">Agende sua consulta</Button>
+            <Button color="primary" onClick={this.props.onMarcar}>
+              Agende sua consulta
+            </Button>
           </Col>
         </Row>
         <Row>
