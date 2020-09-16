@@ -75,7 +75,7 @@ export default class HDataTable extends React.Component {
             onCreateRegister={this.props.onCreateRegister}
             searchPlaceHolder={this.props.searchPlaceHolder}
           />
-          {renderTable()}
+          {this.renderTable()}
         </Paper>
       </div>
     );
