@@ -37,7 +37,7 @@
     "serve": "^11.3.2",
     "typescript": "^3.9.6",
     "webfontloader": "^1.6.28",
-    "xlsx": "^0.16.6"
+    "xlsx": "^0.17.0"
   },
   "scripts": {
     "dev": "react-scripts start",
